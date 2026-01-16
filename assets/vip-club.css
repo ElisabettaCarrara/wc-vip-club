@@ -1,0 +1,48 @@
+.wc-vip-wrapper {
+	max-width: 720px;
+	padding: 1.5rem;
+	background: var(--wc-content-bg, #fff);
+	border-radius: 8px;
+	border: 1px solid var(--wc-border-color, #e5e5e5);
+}
+
+.wc-vip-wrapper h2 {
+	margin-bottom: 1rem;
+	color: var(--wc-primary);
+}
+
+.wc-vip-success {
+	padding: 1rem;
+	background: color-mix(in srgb, var(--wc-primary) 12%, transparent);
+	border-radius: 6px;
+}
+
+.wc-vip-progress {
+	margin-top: 1.5rem;
+}
+
+.wc-vip-progress-bar {
+	height: 16px;
+	background: var(--wc-border-color, #e5e5e5);
+	border-radius: 999px;
+	overflow: hidden;
+}
+
+.wc-vip-progress-bar span {
+	display: block;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		var(--wc-primary),
+		var(--wc-secondary)
+	);
+	transition: width 0.3s ease;
+}
+
+.wc-vip-meta {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 0.5rem;
+	font-size: 0.875rem;
+	color: var(--wc-secondary-text, #555);
+}

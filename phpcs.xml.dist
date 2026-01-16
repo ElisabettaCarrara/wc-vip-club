@@ -2,18 +2,18 @@
 <ruleset name="VIP Club WooCommerce Coding Standards">
 
 	<description>
-		WordPress + WooCommerce friendly PHPCS ruleset
+		WordPress Coding Standards tuned for WooCommerce plugins.
 	</description>
 
 	<!-- Base WordPress rules -->
 	<rule ref="WordPress" />
 
-	<!-- Allow WooCommerce-style hooks and prefixes -->
+	<!-- Allow WooCommerce-style hook names -->
 	<rule ref="WordPress.NamingConventions.ValidHookName">
 		<severity>0</severity>
 	</rule>
 
-	<!-- Allow plugin-specific text domains -->
+	<!-- Allow plugin-specific text domain -->
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
@@ -22,21 +22,21 @@
 		</properties>
 	</rule>
 
-	<!-- Allow modern PHP type hints -->
+	<!-- Allow modern PHP features -->
 	<rule ref="WordPress.PHP.DevelopmentFunctions">
 		<severity>0</severity>
 	</rule>
 
-	<!-- WooCommerce commonly triggers this incorrectly -->
+	<!-- WooCommerce variable naming is fine -->
 	<rule ref="WordPress.NamingConventions.ValidVariableName">
 		<severity>0</severity>
 	</rule>
 
-	<!-- Recommended WordPress settings -->
+	<!-- Environment -->
 	<config name="minimum_supported_wp_version" value="5.8"/>
 	<config name="testVersion" value="8.0-8.3"/>
 
-	<!-- Paths to exclude -->
+	<!-- Exclusions -->
 	<exclude-pattern>vendor/*</exclude-pattern>
 	<exclude-pattern>node_modules/*</exclude-pattern>
 	<exclude-pattern>.github/*</exclude-pattern>
@@ -44,4 +44,3 @@
 	<exclude-pattern>languages/*</exclude-pattern>
 
 </ruleset>
-

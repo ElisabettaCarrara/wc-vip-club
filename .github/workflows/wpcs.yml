@@ -25,8 +25,9 @@ jobs:
           path: ~/.composer/cache
           key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
-      - name: Install PHP CodeSniffer & WPCS
+      - name: Initialize Composer & Install WPCS
         run: |
+          composer init --no-interaction --name="vip-club/plugin" --type="wordpress-plugin"
           composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer require --dev wp-coding-standards/wpcs:^3.1 squizlabs/php_codesniffer:^3.10 --no-progress --no-interaction
 

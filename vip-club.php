@@ -1,282 +1,304 @@
 <?php
 /**
- * Plugin Name: VIP Club for WooCommerce
- * Description: Automatically upgrades customers to a configurable VIP role based on total spending and displays progress in My Account.
- * Version: 1.3.0
- * Author: Your Name
+ * Plugin Name: VIP Club
+ * Plugin URI:  https://elica-webservices.it
+ * Description: Automatic VIP role assignment based on customer lifetime spending in WooCommerce.
+ * Version:     1.0.0
+ * Author:      Elisabetta Carrara
+ * Author URI:  https://elica-webservices.it
+ * License:     GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: vip-club
+ * Domain Path: /languages
+ * Requires at least: 5.8
+ * Tested up to: 6.6
+ * Requires PHP: 8.0
+ *
+ * @package    WC_VIP_Club
+ * @author     Elisabetta Carrara <elisabetta.marina.clelia@gmail.com>
  */
 
-defined( 'ABSPATH' ) || exit;
-
-if ( ! class_exists( 'WooCommerce' ) ) {
-	return;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
 }
 
+if ( ! defined( 'WC_VIP_CLUB_VERSION' ) ) {
+	define( 'WC_VIP_CLUB_VERSION', '1.0.0' );
+}
+
+/**
+ * Main VIP Club Class
+ */
 final class WC_VIP_Club {
 
-	public const OPTION_THRESHOLD = 'vip_club_threshold';
-	public const OPTION_ROLE_NAME = 'vip_club_role_name';
-	public const OPTION_ROLE_SLUG = 'vip_club_role_slug';
-	public const ENDPOINT         = 'vip-club';
+	/**
+	 * Plugin option keys.
+	 *
+	 * @var string[]
+	 */
+	const OPTION_ROLE_NAME = 'vip_club_role_name';
 
+	/**
+	 * @var string
+	 */
+	const OPTION_ROLE_SLUG = 'vip_club_role_slug';
+
+	/**
+	 * @var string
+	 */
+	const OPTION_THRESHOLD = 'vip_club_threshold';
+
+	/**
+	 * Single instance.
+	 *
+	 * @var WC_VIP_Club
+	 */
+	private static $instance = null;
+
+	/**
+	 * Constructor.
+	 */
 	public function __construct() {
-		register_activation_hook( __FILE__, [ $this, 'activate' ] );
-
-		add_action( 'plugins_loaded', [ $this, 'load_textdomain' ] );
-		add_action( 'init', [ $this, 'register_endpoint' ] );
-
-		add_filter( 'woocommerce_account_menu_items', [ $this, 'add_account_tab' ] );
-		add_action(
-			'woocommerce_account_' . self::ENDPOINT . '_endpoint',
-			[ $this, 'render_account_tab' ]
-		);
-
-		add_action( 'woocommerce_order_status_completed', [ $this, 'maybe_upgrade_customer' ] );
-		add_action( 'woocommerce_order_status_processing', [ $this, 'maybe_upgrade_customer' ] );
-
-		add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
-
-		// Settings
-		add_filter( 'woocommerce_settings_tabs_array', [ $this, 'add_settings_tab' ], 50 );
-		add_action( 'woocommerce_settings_tabs_vip_club', [ $this, 'render_settings_tab' ] );
-		add_action( 'woocommerce_update_options_vip_club', [ $this, 'save_settings' ] );
-		add_action( 'admin_notices', [ $this, 'settings_preview_notice' ] );
+		add_action( 'init', array( $this, 'init' ) );
 	}
 
-	/* ---------------------------------------------------------
-	 * Activation
-	 * ------------------------------------------------------ */
-
-	public function activate(): void {
-		add_option( self::OPTION_THRESHOLD, '1000' );
-		add_option( self::OPTION_ROLE_NAME, __( 'VIP Customer', 'vip-club' ) );
-		add_option( self::OPTION_ROLE_SLUG, '' );
-
+	/**
+	 * Initialize plugin.
+	 */
+	public function init() {
 		$this->sync_vip_role();
 		flush_rewrite_rules();
 	}
 
-	/* ---------------------------------------------------------
-	 * Role helpers
-	 * ------------------------------------------------------ */
-
-	public function get_role_name(): string {
-		return apply_filters(
-			'vip_club_role_name',
-			get_option( self::OPTION_ROLE_NAME, __( 'VIP Customer', 'vip-club' ) )
-		);
+	/**
+	 * Get VIP role name.
+	 *
+	 * @return string Role name.
+	 */
+	public function get_role_name() {
+		return apply_filters( 'vip_club_role_name', get_option( self::OPTION_ROLE_NAME, __( 'VIP Customer', 'vip-club' ) ) );
 	}
 
-	public function get_role_slug(): string {
+	/**
+	 * Get VIP role slug.
+	 *
+	 * @return string Role slug.
+	 */
+	public function get_role_slug() {
 		$override = get_option( self::OPTION_ROLE_SLUG );
-
-		$slug = $override
-			? sanitize_key( $override )
-			: sanitize_key( $this->get_role_name() );
-
+		$slug     = $override ? sanitize_key( $override ) : sanitize_key( $this->get_role_name() );
 		return apply_filters( 'vip_club_role_slug', $slug );
 	}
 
-	public function get_threshold(): float {
-		return (float) apply_filters(
-			'vip_club_threshold',
-			get_option( self::OPTION_THRESHOLD, 1000 )
-		);
+	/**
+	 * Get spending threshold.
+	 *
+	 * @return float Threshold amount.
+	 */
+	public function get_threshold() {
+		return (float) apply_filters( 'vip_club_threshold', get_option( self::OPTION_THRESHOLD, 1000 ) );
 	}
 
-	private function sync_vip_role(): void {
+	/**
+	 * Sync VIP role with customer capabilities.
+	 */
+	private function sync_vip_role() {
 		$customer = get_role( 'customer' );
 		if ( ! $customer ) {
 			return;
 		}
 
 		$slug = $this->get_role_slug();
-
 		remove_role( $slug );
-
-		add_role(
-			$slug,
-			$this->get_role_name(),
-			$customer->capabilities
-		);
-
+		add_role( $slug, $this->get_role_name(), $customer->capabilities );
 		do_action( 'vip_club_role_synced', $slug, $this->get_role_name() );
 	}
 
-	/* ---------------------------------------------------------
-	 * Settings
-	 * ------------------------------------------------------ */
-
-	public function add_settings_tab( array $tabs ): array {
+	/**
+	 * Add settings tab.
+	 *
+	 * @param array $tabs Existing tabs.
+	 * @return array Updated tabs.
+	 */
+	public function add_settings_tab( array $tabs ) {
 		$tabs['vip_club'] = __( 'VIP Club', 'vip-club' );
 		return $tabs;
 	}
 
-	private function get_settings_fields(): array {
-		return [
-			[
+	/**
+	 * Get settings fields.
+	 *
+	 * @return array[] Settings fields definition.
+	 */
+	private function get_settings_fields() {
+		return array(
+			array(
 				'name' => __( 'VIP Club Settings', 'vip-club' ),
 				'type' => 'title',
 				'id'   => 'vip_club_section',
-			],
-			[
+			),
+			array(
 				'name'    => __( 'VIP role name', 'vip-club' ),
 				'type'    => 'text',
 				'id'      => self::OPTION_ROLE_NAME,
 				'default' => __( 'VIP Customer', 'vip-club' ),
-			],
-			[
+			),
+			array(
 				'name'    => __( 'Advanced: role slug override', 'vip-club' ),
 				'type'    => 'text',
 				'id'      => self::OPTION_ROLE_SLUG,
 				'desc'    => __( 'Optional. Leave empty to auto-generate from role name.', 'vip-club' ),
-			],
-			[
+			),
+			array(
 				'name'              => __( 'Spending threshold', 'vip-club' ),
 				'type'              => 'number',
 				'id'                => self::OPTION_THRESHOLD,
 				'default'           => '1000',
-				'custom_attributes' => [
+				'custom_attributes' => array(
 					'min'  => '0',
 					'step' => '0.01',
-				],
-			],
-			[
+				),
+			),
+			array(
 				'type' => 'sectionend',
 				'id'   => 'vip_club_section_end',
-			],
-		];
+			),
+		);
 	}
 
-	public function render_settings_tab(): void {
+	/**
+	 * Render settings tab content.
+	 */
+	public function render_settings_tab() {
 		woocommerce_admin_fields( $this->get_settings_fields() );
 	}
 
-	public function save_settings(): void {
+	/**
+	 * Save settings.
+	 */
+	public function save_settings() {
 		woocommerce_update_options( $this->get_settings_fields() );
 		$this->sync_vip_role();
 	}
 
-	public function settings_preview_notice(): void {
-		if ( ! isset( $_GET['page'], $_GET['tab'] ) || $_GET['tab'] !== 'vip_club' ) {
+	/**
+	 * Settings preview notice.
+	 */
+	public function settings_preview_notice() {
+		if ( ! isset( $_GET['page'], $_GET['tab'] ) || $_GET['tab'] !== 'vip_club' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return;
 		}
-
 		printf(
-			'<div class="notice notice-info"><p><strong>%s</strong><br>%s<br>%s</p></div>',
-			esc_html__( 'VIP Role Preview', 'vip-club' ),
-			esc_html( sprintf( 'Name: %s | Slug: %s', $this->get_role_name(), $this->get_role_slug() ) ),
-			esc_html( sprintf( 'Threshold: %s', wc_price( $this->get_threshold() ) ) )
+			/* translators: %s: Settings preview notice. */
+			'<div class="notice notice-info"><p><strong>%s</strong></p><p>%s</p><p>%s</p></div>',
+			esc_html__( 'Settings preview:', 'vip-club' ),
+			sprintf(
+				/* translators: 1: Role name, 2: Role slug. */
+				esc_html__( 'Role: %1$s (%2$s)', 'vip-club' ),
+				'<code>' . esc_html( $this->get_role_name() ) . '</code>',
+				'<code>' . esc_html( $this->get_role_slug() ) . '</code>'
+			),
+			sprintf(
+				/* translators: %s: Threshold amount. */
+				esc_html__( 'Threshold: %s', 'vip-club' ),
+				'<code>' . wc_price( $this->get_threshold() ) . '</code>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			)
 		);
 	}
 
-	/* ---------------------------------------------------------
-	 * My Account
-	 * ------------------------------------------------------ */
-
-	public function register_endpoint(): void {
-		add_rewrite_endpoint( self::ENDPOINT, EP_ROOT | EP_PAGES );
+	/**
+	 * Add account tab.
+	 *
+	 * @param array $tabs Account tabs.
+	 * @return array Updated tabs.
+	 */
+	public function add_account_tab( array $tabs ) {
+		$tabs['vip_club'] = array(
+			'title'  => __( 'VIP Club', 'vip-club' ),
+			'priority' => 50,
+		);
+		return $tabs;
 	}
 
-	public function add_account_tab( array $items ): array {
-		$new = [];
-		foreach ( $items as $key => $label ) {
-			$new[ $key ] = $label;
-			if ( 'dashboard' === $key ) {
-				$new[ self::ENDPOINT ] = __( 'VIP Club', 'vip-club' );
+	/**
+	 * Render account tab content.
+	 */
+	public function render_account_tab() {
+		$current_user = wp_get_current_user();
+		if ( ! $current_user->exists() ) {
+			return;
+		}
+
+		$slug      = $this->get_role_slug();
+		$threshold = $this->get_threshold();
+		$is_vip    = in_array( $slug, (array) $current_user->roles, true );
+		$total     = wc_get_customer_total_spent( $current_user->ID );
+
+		if ( $is_vip ) {
+			printf(
+				/* translators: %s: Total spent. */
+				'<p class="vip-status vip-active">%s <strong>%s</strong> &mdash; %s</p>',
+				esc_html__( 'VIP Status:', 'vip-club' ),
+				esc_html__( 'Active', 'vip-club' ),
+				sprintf(
+					/* translators: %s: Amount spent. */
+					esc_html__( 'Lifetime: %s', 'vip-club' ),
+					'<strong>' . wc_price( $total ) . '</strong>'
+				)
+			);
+		} else {
+			$remaining = max( 0, $threshold - $total );
+			printf(
+				'<p class="vip-status vip-inactive">%s <strong>%s</strong></p>',
+				esc_html__( 'VIP Status:', 'vip-club' ),
+				esc_html__( 'Inactive', 'vip-club' )
+			);
+			if ( $remaining > 0 ) {
+				printf(
+					/* translators: 1: Amount remaining, 2: Threshold. */
+					'<p>%s <strong>%s</strong> %s %s</p>',
+					esc_html__( 'Spend', 'vip-club' ),
+					wc_price( $remaining ),
+					esc_html__( 'more to join VIP (threshold:', 'vip-club' ),
+					wc_price( $threshold ) . ')'
+				);
 			}
 		}
-		return $new;
 	}
 
-	public function render_account_tab(): void {
-		$user = wp_get_current_user();
-		if ( ! $user->ID ) {
-			return;
-		}
-
-		$is_vip = apply_filters(
-			'vip_club_is_user_vip',
-			in_array( $this->get_role_slug(), (array) $user->roles, true ),
-			$user
-		);
-
-		$total_spent = wc_get_customer_total_spent( $user->ID );
-		$threshold   = $this->get_threshold();
-
-		$percentage = min( 100, ( $total_spent / max( 1, $threshold ) ) * 100 );
-		$remaining  = max( 0, $threshold - $total_spent );
-		?>
-
-		<div class="wc-vip-wrapper">
-			<h2><?php echo esc_html( $this->get_role_name() ); ?></h2>
-
-			<?php if ( $is_vip ) : ?>
-				<p class="wc-vip-success"><?php esc_html_e( 'You are a VIP member.', 'vip-club' ); ?></p>
-			<?php else : ?>
-				<div class="wc-vip-progress">
-					<div class="wc-vip-progress-bar">
-						<span style="width: <?php echo esc_attr( $percentage ); ?>%"></span>
-					</div>
-					<div class="wc-vip-meta">
-						<span><?php echo esc_html( round( $percentage ) ); ?>%</span>
-						<span><?php echo wc_price( $remaining ); ?></span>
-					</div>
-				</div>
-			<?php endif; ?>
-		</div>
-		<?php
-	}
-
-	/* ---------------------------------------------------------
-	 * Upgrade logic
-	 * ------------------------------------------------------ */
-
-	public function maybe_upgrade_customer( int $order_id ): void {
-		$order = wc_get_order( $order_id );
-		if ( ! $order ) {
-			return;
-		}
-
-		$user_id = (int) $order->get_user_id();
-		if ( ! $user_id ) {
-			return;
-		}
-
-		$user = get_user_by( 'id', $user_id );
-		if ( ! $user ) {
-			return;
-		}
-
-		if ( ! apply_filters( 'vip_club_should_upgrade_user', true, $user, $order ) ) {
-			return;
-		}
-
-		if ( wc_get_customer_total_spent( $user_id ) >= $this->get_threshold() ) {
-			$user->add_role( $this->get_role_slug() );
-			do_action( 'vip_club_user_upgraded', $user_id, $user );
-		}
-	}
-
-	/* ---------------------------------------------------------
-	 * Assets
-	 * ------------------------------------------------------ */
-
-	public function enqueue_assets(): void {
-		if ( is_account_page() ) {
-			wp_enqueue_style(
-				'wc-vip-club',
-				plugins_url( 'assets/vip-club.css', __FILE__ ),
-				[ 'woocommerce-general' ],
-				'1.3.0'
-			);
-		}
-	}
-
-	public function load_textdomain(): void {
+	/**
+	 * Load textdomain.
+	 */
+	public function load_textdomain() {
 		load_plugin_textdomain( 'vip-club', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+	}
+
+	/**
+	 * Get instance.
+	 *
+	 * @return WC_VIP_Club
+	 */
+	public static function get_instance() {
+		if ( null === static::$instance ) {
+			static::$instance = new static();
+		}
+		return static::$instance;
 	}
 }
 
-new WC_VIP_Club();
+// Initialize.
+WC_VIP_Club::get_instance();
+
+/**
+ * Hooks.
+ */
+add_action( 'woocommerce_settings_tabs_array', array( WC_VIP_Club::get_instance(), 'add_settings_tab' ) );
+add_action( 'woocommerce_admin_field_vip_club_section', '__return_empty_array' );
+add_action( 'woocommerce_settings_vip_club', array( WC_VIP_Club::get_instance(), 'render_settings_tab' ) );
+add_action( 'woocommerce_update_options_vip_club', array( WC_VIP_Club::get_instance(), 'save_settings' ) );
+add_action( 'woocommerce_admin_field_vip_club_section_end', '__return_empty_array' );
+add_action( 'woocommerce_settings_save_vip_club', array( WC_VIP_Club::get_instance(), 'save_settings' ) );
+add_action( 'admin_notices', array( WC_VIP_Club::get_instance(), 'settings_preview_notice' ) );
+add_filter( 'woocommerce_account_menu_items', array( WC_VIP_Club::get_instance(), 'add_account_tab' ) );
+add_action( 'woocommerce_account_vip_club_endpoint', array( WC_VIP_Club::get_instance(), 'render_account_tab' ) );
+add_action( 'init', array( WC_VIP_Club::get_instance(), 'load_textdomain' ) );

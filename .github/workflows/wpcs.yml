@@ -2,7 +2,9 @@ name: WordPress Coding Standards
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - main
+      - master
   pull_request:
 
 jobs:
@@ -18,12 +20,17 @@ jobs:
         with:
           php-version: '8.1'
           tools: composer, phpcs
+          coverage: none
+
+      - name: Allow PHPCS Composer plugin
+        run: |
+          composer global config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
 
       - name: Install WordPress Coding Standards
         run: |
           composer global require wp-coding-standards/wpcs
-          phpcs --config-set installed_paths $(composer global config home)/vendor/wp-coding-standards/wpcs
+          phpcs --config-set installed_paths "$(composer global config home)/vendor/wp-coding-standards/wpcs"
 
       - name: Run PHPCS
         run: |
-          phpcs --standard=WordPress --extensions=php --ignore=vendor,node_modules .
+          phpcs --standard=phpcs.xml.dist -n

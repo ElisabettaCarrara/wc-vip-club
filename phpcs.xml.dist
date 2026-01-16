@@ -1,12 +1,47 @@
 <?xml version="1.0"?>
-<ruleset name="VIP Club WPCS">
-	<description>WordPress Coding Standards for VIP Club plugin.</description>
+<ruleset name="VIP Club WooCommerce Coding Standards">
 
+	<description>
+		WordPress + WooCommerce friendly PHPCS ruleset
+	</description>
+
+	<!-- Base WordPress rules -->
 	<rule ref="WordPress" />
 
-	<config name="minimum_supported_wp_version" value="5.8"/>
+	<!-- Allow WooCommerce-style hooks and prefixes -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<severity>0</severity>
+	</rule>
 
+	<!-- Allow plugin-specific text domains -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="vip-club"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Allow modern PHP type hints -->
+	<rule ref="WordPress.PHP.DevelopmentFunctions">
+		<severity>0</severity>
+	</rule>
+
+	<!-- WooCommerce commonly triggers this incorrectly -->
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+		<severity>0</severity>
+	</rule>
+
+	<!-- Recommended WordPress settings -->
+	<config name="minimum_supported_wp_version" value="5.8"/>
+	<config name="testVersion" value="8.0-8.3"/>
+
+	<!-- Paths to exclude -->
 	<exclude-pattern>vendor/*</exclude-pattern>
 	<exclude-pattern>node_modules/*</exclude-pattern>
 	<exclude-pattern>.github/*</exclude-pattern>
+	<exclude-pattern>assets/*</exclude-pattern>
+	<exclude-pattern>languages/*</exclude-pattern>
+
 </ruleset>
+

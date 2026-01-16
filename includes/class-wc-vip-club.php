@@ -311,7 +311,7 @@ final class WC_VIP_Club {
 			'<p>%s</p></div>',
 			sprintf(
 				esc_html__( 'Threshold: %s', 'vip-club' ),
-				'<code>' . wc_price( $this->get_threshold() ) . '</code>'
+				'<code>' . wp_kses_post( wc_price( $this->get_threshold() ) ) . '</code>'
 			)
 		);
 	}
@@ -369,9 +369,9 @@ final class WC_VIP_Club {
 				/* translators: %s: Customer's lifetime spending amount. */
 				'<p class="vip-lifetime-spent">%s</p>',
 				sprintf(
-					/* translators: %s: Total amount spent. */
+					// translators: %s: The customer's total lifetime spending amount.
 					esc_html__( 'Lifetime spending: %s', 'vip-club' ),
-					'<strong>' . wc_price( $total ) . '</strong>'
+					'<strong>' . wp_kses_post( wc_price( $total ) ) . '</strong>'
 				)
 			);
 			echo '</div>';
@@ -390,10 +390,10 @@ final class WC_VIP_Club {
 					/* translators: 1: Amount remaining to reach VIP status, 2: Total threshold amount required. */
 					'<p class="vip-progress">%s</p>',
 					sprintf(
-						/* translators: 1: Amount remaining, 2: Threshold amount. */
+						// translators: 1: The amount remaining to reach VIP status, 2: The total threshold amount.
 						esc_html__( 'Spend %1$s more to join VIP (threshold: %2$s)', 'vip-club' ),
-						'<strong>' . wc_price( $remaining ) . '</strong>',
-						wc_price( $threshold )
+						'<strong>' . wp_kses_post( wc_price( $remaining ) ) . '</strong>',
+						wp_kses_post( wc_price( $threshold ) )
 					)
 				);
 
@@ -406,7 +406,7 @@ final class WC_VIP_Club {
 					/* translators: %s: Progress percentage. */
 					'<p class="vip-progress-percent">%s</p>',
 					sprintf(
-						/* translators: %s: Percentage value. */
+						// translators: %s: The customer's progress percentage toward VIP status.
 						esc_html__( 'Progress: %s%%', 'vip-club' ),
 						esc_html( number_format( $percentage, 1 ) )
 					)

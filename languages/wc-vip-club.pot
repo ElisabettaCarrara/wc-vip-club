@@ -1,0 +1,97 @@
+# Copyright (C) 2024 Elisabetta Carrara
+# This file is distributed under the same license as the VIP Club for WooCommerce plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: VIP Club for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/vip-club\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-05-24T10:00:00+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.8.1\n"
+"X-Domain: vip-club\n"
+
+#. Role display name default
+#: class-wc-vip-club.php:118
+#: class-wc-vip-club.php:178
+msgid "VIP Customer"
+msgstr ""
+
+#. Settings tab and account tab title
+#: class-wc-vip-club.php:156
+#: class-wc-vip-club.php:267
+msgid "VIP Club"
+msgstr ""
+
+#: class-wc-vip-club.php:171
+msgid "VIP Club Settings"
+msgstr ""
+
+#: class-wc-vip-club.php:176
+msgid "VIP role name"
+msgstr ""
+
+#: class-wc-vip-club.php:179
+msgid "The display name for the VIP role."
+msgstr ""
+
+#: class-wc-vip-club.php:183
+msgid "Advanced: role slug override"
+msgstr ""
+
+#: class-wc-vip-club.php:186
+msgid "Optional. Leave empty to auto-generate from role name."
+msgstr ""
+
+#: class-wc-vip-club.php:190
+msgid "Spending threshold"
+msgstr ""
+
+#: class-wc-vip-club.php:193
+msgid "Minimum lifetime spending to achieve VIP status."
+msgstr ""
+
+#: class-wc-vip-club.php:231
+msgid "Settings preview:"
+msgstr ""
+
+#. translators: 1: Role display name, 2: Role slug identifier.
+#: class-wc-vip-club.php:238
+msgid "Role: %1$s (%2$s)"
+msgstr ""
+
+#. translators: %s: Minimum spending amount to achieve VIP status.
+#: class-wc-vip-club.php:248
+msgid "Threshold: %s"
+msgstr ""
+
+#: class-wc-vip-club.php:306
+#: class-wc-vip-club.php:327
+msgid "VIP Status:"
+msgstr ""
+
+#: class-wc-vip-club.php:307
+msgid "Active"
+msgstr ""
+
+#. translators: %s: Customer's total lifetime spending amount.
+#: class-wc-vip-club.php:313
+msgid "Lifetime spending: %s"
+msgstr ""
+
+#: class-wc-vip-club.php:328
+msgid "Inactive"
+msgstr ""
+
+#. translators: 1: Amount remaining to reach VIP status, 2: Total threshold amount required.
+#: class-wc-vip-club.php:336
+msgid "Spend %1$s more to join VIP (threshold: %2$s)"
+msgstr ""
+
+#. translators: %s: Progress percentage toward VIP status.
+#: class-wc-vip-club.php:352
+msgid "Progress: %s%%"
+msgstr ""

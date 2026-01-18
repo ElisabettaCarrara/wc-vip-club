@@ -1,4 +1,4 @@
-VIP Club for WooCommerce
+VIP Club for Woo and Classic Commerce
 =======================
 
 Automatically upgrade customers to a VIP role when they reach a spending threshold. The plugin adds a VIP Club section to the account area, showing real-time progress toward VIP status.
@@ -13,8 +13,8 @@ Features
 - Configurable VIP role name
 - Optional advanced role slug override
 - Visual progress bar in the My Account area
-- WooCommerce-native settings page
-- Uses WooCommerce standard colors
+- Native settings page
+- Uses Woo/Classic Commerce standard colors
 - Multisite compatible (per-site roles and settings)
 - Hooks and filters for third-party extensions
 - Admin preview of VIP role configuration
@@ -25,7 +25,7 @@ Requirements
 ------------
 
 - WordPress 5.8 or later
-- WooCommerce 6.0 or later
+- WooCommerce 6.0 or later / Classic Commerce v2 or later
 - PHP 8.0 or later
 
 
@@ -34,7 +34,7 @@ Installation
 
 1. Upload the plugin folder to /wp-content/plugins/
 2. Activate "VIP Club for WooCommerce" from the Plugins screen
-3. Go to WooCommerce > Settings > VIP Club
+3. Go to WooCommerce / Classic Commerce > Settings > VIP Club
 4. Configure the VIP role name, threshold, and optional role slug
 
 The plugin is now active.
@@ -114,19 +114,6 @@ The plugin is fully compatible with WordPress Multisite.
 - No network-wide role pollution
 
 
-Styling and Theming
--------------------
-
-The plugin uses WooCommerce CSS variables such as:
-
-- --wc-primary
-- --wc-secondary
-- --wc-border-color
-
-This ensures consistent appearance with WooCommerce themes and allows global
-customization through theme styles or custom CSS.
-
-
 Translations
 ------------
 
@@ -145,8 +132,8 @@ No. The VIP role is added to the user. Existing roles are not removed.
 Can VIP users be downgraded automatically?
 No. VIP status is permanent by default. Downgrades can be implemented via hooks if needed.
 
-Can the plugin be used without WooCommerce?
-No. The plugin relies on WooCommerce order data.
+Can the plugin be used without Woo / Classic Commerce?
+No. The plugin relies on Woo / Classic Commerce order data.
 
 
 License
@@ -159,10 +146,11 @@ https://www.gnu.org/licenses/gpl-2.0.html
 Roadmap
 -------
 
-- VIP tiers (Silver, Gold, Platinum)
-- Time-limited VIP memberships
 - Email notifications
 - REST API support
+PRO VERSION ADD-ON including
+- VIP tiers (Silver, Gold, Platinum)
+- Time-limited VIP memberships
 
 
 Contributing
@@ -175,4 +163,4 @@ Please open an issue to discuss major changes before submitting a pull request.
 Credits
 -------
 
-Developed for WooCommerce store owners and developers.
+Developed for Woo and Classic Commerce store owners and developers.

@@ -2,26 +2,30 @@
 /**
  * Main VIP Club Class
  *
- * @package    WC_VIP_Club
- * @subpackage WC_VIP_Club/includes
- * @author     Elisabetta Carrara <elisabetta.marina.clelia@gmail.com>
+ * Handles VIP role management, settings, and frontend account display.
+ *
+ * IMPORTANT:
+ * - This class assumes that the correct commerce plugin
+ *   (WooCommerce or Classic Commerce) is already active.
+ * - Environment and dependency checks MUST be handled
+ *   in the main plugin file.
+ *
+ * @package WC_VIP_Club
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
- * Main VIP Club Class
+ * Class WC_VIP_Club
  *
- * Handles VIP role management and automatic assignment based on customer lifetime spending.
- * Compatible with WordPress/WooCommerce and ClassicPress/Classic Commerce.
+ * @since 1.0.0
  */
 final class WC_VIP_Club {
 
 	/**
 	 * Option key for VIP role display name.
 	 *
+	 * @since 1.0.0
 	 * @var string
 	 */
 	const OPTION_ROLE_NAME = 'vip_club_role_name';
@@ -29,103 +33,95 @@ final class WC_VIP_Club {
 	/**
 	 * Option key for VIP role slug.
 	 *
+	 * @since 1.0.0
 	 * @var string
 	 */
 	const OPTION_ROLE_SLUG = 'vip_club_role_slug';
 
 	/**
-	 * Option key for spending threshold amount.
+	 * Option key for spending threshold.
 	 *
+	 * @since 1.0.0
 	 * @var string
 	 */
 	const OPTION_THRESHOLD = 'vip_club_threshold';
 
 	/**
-	 * Single instance of the plugin.
+	 * Singleton instance.
 	 *
+	 * @since 1.0.0
 	 * @var WC_VIP_Club|null
 	 */
 	private static $instance = null;
 
 	/**
-	 * Whether running on ClassicPress.
-	 *
-	 * @var bool
-	 */
-	private $is_classicpress = false;
-
-	/**
-	 * Whether Classic Commerce is active.
-	 *
-	 * @var bool
-	 */
-	private $is_classic_commerce = false;
-
-	/**
 	 * Constructor.
 	 *
-	 * Sets up plugin initialization hooks.
+	 * Private to enforce singleton usage.
+	 *
+	 * @since 1.0.0
 	 */
-	public function __construct() {
-		$this->detect_environment();
-		$this->init_hooks();
+	private function __construct() {
+		$this->register_hooks();
 	}
 
 	/**
-	 * Detect ClassicPress and Classic Commerce environment.
+	 * Get singleton instance.
 	 *
-	 * @return void
+	 * @since 1.0.0
+	 *
+	 * @return WC_VIP_Club
 	 */
-	private function detect_environment() {
-		$this->is_classicpress = function_exists( 'classicpress_version' );
-
-		if ( $this->is_classicpress && did_action( 'plugins_loaded' ) ) {
-			include_once ABSPATH . 'wp-admin/includes/plugin.php';
-			$this->is_classic_commerce = is_plugin_active( 'classic-commerce/classic-commerce.php' );
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
 		}
+
+		return self::$instance;
 	}
 
 	/**
-	 * Initialize hooks.
+	 * Register all WordPress hooks.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
-	private function init_hooks() {
+	private function register_hooks() {
+
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'init', array( $this, 'load_textdomain' ) );
 
-		// Commerce settings compatibility.
-		$settings_hook = $this->is_classic_commerce ? 'classic_commerce_settings_tabs_array' : 'woocommerce_settings_tabs_array';
-		add_filter( $settings_hook, array( $this, 'add_settings_tab' ) );
-
-		$settings_action = $this->is_classic_commerce ? 'classic_commerce_settings_vip_club' : 'woocommerce_settings_vip_club';
-		add_action( $settings_action, array( $this, 'render_settings_tab' ) );
-
-		$save_action = $this->is_classic_commerce ? 'classic_commerce_update_options_vip_club' : 'woocommerce_update_options_vip_club';
-		add_action( $save_action, array( $this, 'save_settings' ) );
+		// Settings integration (WooCommerce / Classic Commerce compatible).
+		add_filter( 'woocommerce_settings_tabs_array', array( $this, 'add_settings_tab' ) );
+		add_action( 'woocommerce_settings_vip_club', array( $this, 'render_settings_tab' ) );
+		add_action( 'woocommerce_update_options_vip_club', array( $this, 'save_settings' ) );
 
 		add_action( 'admin_notices', array( $this, 'settings_preview_notice' ) );
 
-		// Account tabs - WooCommerce/Classic Commerce agnostic.
+		// My Account integration.
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'add_account_tab' ) );
 		add_action( 'woocommerce_account_vip_club_endpoint', array( $this, 'render_account_tab' ) );
-
-		add_action( 'init', array( $this, 'load_textdomain' ) );
 	}
 
 	/**
-	 * Initialize plugin.
+	 * Initialize plugin logic.
 	 *
-	 * Synchronizes VIP role capabilities and registers custom endpoint.
+	 * Registers rewrite endpoint and synchronizes the VIP role.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
 	public function init() {
-		$this->sync_vip_role();
 		$this->register_endpoint();
+		$this->sync_vip_role();
 	}
 
 	/**
-	 * Register custom endpoint for account page.
+	 * Register VIP Club endpoint for My Account page.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
@@ -134,74 +130,92 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Get VIP role name.
+	 * Get VIP role display name.
 	 *
-	 * Retrieves the VIP role display name from options, with filter support.
+	 * @since 1.0.0
 	 *
-	 * @return string Role name.
+	 * @return string
 	 */
 	public function get_role_name() {
-		return apply_filters( 'vip_club_role_name', get_option( self::OPTION_ROLE_NAME, __( 'VIP Customer', 'wc-vip-club' ) ) );
+		$default = __( 'VIP Customer', 'wc-vip-club' );
+
+		return (string) apply_filters(
+			'vip_club_role_name',
+			get_option( self::OPTION_ROLE_NAME, $default )
+		);
 	}
 
 	/**
 	 * Get VIP role slug.
 	 *
-	 * Retrieves the VIP role slug, either from override option or auto-generated from role name.
+	 * @since 1.0.0
 	 *
-	 * @return string Role slug.
+	 * @return string
 	 */
 	public function get_role_slug() {
 		$override = get_option( self::OPTION_ROLE_SLUG );
-		$slug     = $override ? sanitize_key( $override ) : sanitize_key( $this->get_role_name() );
-		return apply_filters( 'vip_club_role_slug', $slug );
+
+		$slug = $override
+			? sanitize_key( $override )
+			: sanitize_key( $this->get_role_name() );
+
+		return (string) apply_filters( 'vip_club_role_slug', $slug );
 	}
 
 	/**
-	 * Get spending threshold.
+	 * Get VIP spending threshold.
 	 *
-	 * Retrieves the minimum lifetime spending required for VIP status.
+	 * @since 1.0.0
 	 *
-	 * @return float Threshold amount.
+	 * @return float
 	 */
 	public function get_threshold() {
-		return (float) apply_filters( 'vip_club_threshold', get_option( self::OPTION_THRESHOLD, 1000 ) );
+		return (float) apply_filters(
+			'vip_club_threshold',
+			get_option( self::OPTION_THRESHOLD, 1000 )
+		);
 	}
 
 	/**
-	 * Sync VIP role with customer capabilities.
+	 * Synchronize VIP role with customer capabilities.
 	 *
-	 * Removes and recreates the VIP role with the same capabilities as the customer role.
+	 * The VIP role is recreated to mirror the customer role.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
 	private function sync_vip_role() {
-		$customer = get_role( 'customer' );
-		if ( ! $customer ) {
+		$customer_role = get_role( 'customer' );
+
+		if ( ! $customer_role ) {
 			return;
 		}
 
 		$slug = $this->get_role_slug();
+		$name = $this->get_role_name();
 
 		remove_role( $slug );
-		add_role( $slug, $this->get_role_name(), $customer->capabilities );
+		add_role( $slug, $name, $customer_role->capabilities );
 
 		/**
-		 * Fires after VIP role is synced.
+		 * Fires after VIP role synchronization.
 		 *
-		 * @param string $slug        Role slug.
-		 * @param string $role_name   Role display name.
+		 * @since 1.0.0
+		 *
+		 * @param string $slug Role slug.
+		 * @param string $name Role display name.
 		 */
-		do_action( 'vip_club_role_synced', $slug, $this->get_role_name() );
+		do_action( 'vip_club_role_synced', $slug, $name );
 	}
 
 	/**
-	 * Add settings tab.
+	 * Add VIP Club settings tab.
 	 *
-	 * Adds VIP Club tab to WooCommerce/Classic Commerce settings.
+	 * @since 1.0.0
 	 *
 	 * @param array $tabs Existing settings tabs.
-	 * @return array Updated tabs array.
+	 * @return array
 	 */
 	public function add_settings_tab( $tabs ) {
 		$tabs['vip_club'] = __( 'VIP Club', 'wc-vip-club' );
@@ -209,11 +223,11 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Get settings fields.
+	 * Get settings fields definition.
 	 *
-	 * Defines all settings fields for the VIP Club settings page.
+	 * @since 1.0.0
 	 *
-	 * @return array Settings fields definition.
+	 * @return array
 	 */
 	private function get_settings_fields() {
 		return array(
@@ -227,24 +241,17 @@ final class WC_VIP_Club {
 				'type'    => 'text',
 				'id'      => self::OPTION_ROLE_NAME,
 				'default' => __( 'VIP Customer', 'wc-vip-club' ),
-				'desc'    => __( 'The display name for the VIP role.', 'wc-vip-club' ),
 			),
 			array(
-				'name' => __( 'Advanced: role slug override', 'wc-vip-club' ),
+				'name' => __( 'Role slug override', 'wc-vip-club' ),
 				'type' => 'text',
 				'id'   => self::OPTION_ROLE_SLUG,
-				'desc' => __( 'Optional. Leave empty to auto-generate from role name.', 'wc-vip-club' ),
 			),
 			array(
-				'name'              => __( 'Spending threshold', 'wc-vip-club' ),
-				'type'              => 'number',
-				'id'                => self::OPTION_THRESHOLD,
-				'default'           => '1000',
-				'desc'              => __( 'Minimum lifetime spending to achieve VIP status.', 'wc-vip-club' ),
-				'custom_attributes' => array(
-					'min'  => '0',
-					'step' => '0.01',
-				),
+				'name'    => __( 'Spending threshold', 'wc-vip-club' ),
+				'type'    => 'number',
+				'id'      => self::OPTION_THRESHOLD,
+				'default' => '1000',
 			),
 			array(
 				'type' => 'sectionend',
@@ -254,9 +261,9 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Render settings tab content.
+	 * Render settings tab.
 	 *
-	 * Outputs the settings fields for the VIP Club tab.
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
@@ -265,9 +272,9 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Save settings.
+	 * Save settings and resync role.
 	 *
-	 * Processes and saves VIP Club settings, then syncs the role.
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
@@ -277,39 +284,28 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Settings preview notice.
+	 * Show settings preview notice.
 	 *
-	 * Displays a notice on the settings page showing current VIP Club configuration.
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
 	public function settings_preview_notice() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET['page'], $_GET['tab'] ) || 'vip_club' !== $_GET['tab'] ) {
+		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== $_GET['tab'] ) {
 			return;
 		}
 		// phpcs:enable
 
 		printf(
-			/* translators: %s: Settings preview label. */
-			'<div class="notice notice-info"><p><strong>%s</strong></p>',
-			esc_html__( 'Settings preview:', 'wc-vip-club' )
-		);
-
-		printf(
-			'<p>%s</p>',
+			'<div class="notice notice-info"><p><strong>%s</strong></p><p>%s</p><p>%s</p></div>',
+			esc_html__( 'Settings preview:', 'wc-vip-club' ),
 			sprintf(
-				// translators: 1: Role display name, 2: Role slug identifier.
 				esc_html__( 'Role: %1$s (%2$s)', 'wc-vip-club' ),
 				'<code>' . esc_html( $this->get_role_name() ) . '</code>',
 				'<code>' . esc_html( $this->get_role_slug() ) . '</code>'
-			)
-		);
-
-		printf(
-			'<p>%s</p></div>',
+			),
 			sprintf(
-				// translators: %s: Minimum spending amount to achieve VIP status.
 				esc_html__( 'Threshold: %s', 'wc-vip-club' ),
 				'<code>' . wp_kses_post( wc_price( $this->get_threshold() ) ) . '</code>'
 			)
@@ -317,108 +313,68 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Add account tab.
+	 * Add VIP Club tab to My Account.
 	 *
-	 * Adds VIP Club tab to customer account navigation.
+	 * @since 1.0.0
 	 *
-	 * @param array $tabs Account navigation tabs.
-	 * @return array Updated tabs array.
+	 * @param array $tabs Account menu items.
+	 * @return array
 	 */
 	public function add_account_tab( $tabs ) {
-		$tabs['vip_club'] = array(
-			'title'    => __( 'VIP Club', 'wc-vip-club' ),
-			'priority' => 50,
-		);
-
+		$tabs['vip_club'] = __( 'VIP Club', 'wc-vip-club' );
 		return $tabs;
 	}
 
 	/**
-	 * Render account tab content.
+	 * Render My Account VIP Club tab.
 	 *
-	 * Displays VIP status and progress information on the customer account page.
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
 	public function render_account_tab() {
-		$current_user = wp_get_current_user();
-		if ( ! $current_user->exists() ) {
+		$user = wp_get_current_user();
+
+		if ( ! $user->exists() ) {
 			return;
 		}
 
-		$slug      = $this->get_role_slug();
-		$threshold = $this->get_threshold();
-		$is_vip    = in_array( $slug, (array) $current_user->roles, true );
+		$is_vip = in_array( $this->get_role_slug(), (array) $user->roles, true );
+		$total  = function_exists( 'wc_get_customer_total_spent' )
+			? (float) wc_get_customer_total_spent( $user->ID )
+			: 0.0;
 
-		// Compatible total spent retrieval.
-		$total = 0.0;
-		if ( function_exists( 'wc_get_customer_total_spent' ) ) {
-			$total = wc_get_customer_total_spent( $current_user->ID );
-		}
-
-		echo '<div class="woocommerce-wc-vip-club">';
+		echo '<div class="wc-vip-club">';
 
 		if ( $is_vip ) {
-			echo '<div class="vip-status vip-active">';
 			printf(
-				'<p class="vip-status-label">%s <strong>%s</strong></p>',
+				'<p><strong>%s</strong> %s</p>',
 				esc_html__( 'VIP Status:', 'wc-vip-club' ),
 				esc_html__( 'Active', 'wc-vip-club' )
 			);
-			printf(
-				'<p class="vip-lifetime-spent">%s</p>',
-				sprintf(
-					// translators: %s: Customer's total lifetime spending amount.
-					esc_html__( 'Lifetime spending: %s', 'wc-vip-club' ),
-					'<strong>' . wp_kses_post( wc_price( $total ) ) . '</strong>'
-				)
-			);
-			echo '</div>';
 		} else {
-			$remaining = max( 0, $threshold - $total );
-
-			echo '<div class="vip-status vip-inactive">';
 			printf(
-				'<p class="vip-status-label">%s <strong>%s</strong></p>',
+				'<p><strong>%s</strong> %s</p>',
 				esc_html__( 'VIP Status:', 'wc-vip-club' ),
 				esc_html__( 'Inactive', 'wc-vip-club' )
 			);
-
-			if ( $remaining > 0 ) {
-				printf(
-					'<p class="vip-progress">%s</p>',
-					sprintf(
-						// translators: 1: Amount remaining to reach VIP status, 2: Total threshold amount required.
-						esc_html__( 'Spend %1$s more to join VIP (threshold: %2$s)', 'wc-vip-club' ),
-						'<strong>' . wp_kses_post( wc_price( $remaining ) ) . '</strong>',
-						wp_kses_post( wc_price( $threshold ) )
-					)
-				);
-
-				$percentage = $threshold > 0 ? min( 100, ( $total / $threshold ) * 100 ) : 0;
-				printf(
-					'<div class="vip-progress-bar"><div class="vip-progress-fill" style="width: %s%%;"></div></div>',
-					esc_attr( number_format( $percentage, 2 ) )
-				);
-				printf(
-					'<p class="vip-progress-percent">%s</p>',
-					sprintf(
-						// translators: %s: Progress percentage toward VIP status.
-						esc_html__( 'Progress: %s%%', 'wc-vip-club' ),
-						esc_html( number_format( $percentage, 1 ) )
-					)
-				);
-			}
-			echo '</div>';
 		}
+
+		printf(
+			'<p>%s</p>',
+			sprintf(
+				esc_html__( 'Lifetime spending: %s', 'wc-vip-club' ),
+				'<strong>' . wp_kses_post( wc_price( $total ) ) . '</strong>'
+			)
+		);
 
 		echo '</div>';
 	}
 
 	/**
-	 * Load textdomain.
+	 * Load plugin translations.
 	 *
-	 * Loads translation files for internationalization.
+	 * @since 1.0.0
 	 *
 	 * @return void
 	 */
@@ -428,20 +384,5 @@ final class WC_VIP_Club {
 			false,
 			dirname( plugin_basename( WC_VIP_CLUB_PLUGIN_FILE ) ) . '/languages'
 		);
-	}
-
-	/**
-	 * Get instance.
-	 *
-	 * Returns the singleton instance of the plugin.
-	 *
-	 * @return WC_VIP_Club Singleton instance.
-	 */
-	public static function get_instance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
 	}
 }

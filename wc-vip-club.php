@@ -1,19 +1,25 @@
 <?php
 /**
- * Plugin Name: VIP Club
- * Plugin URI:  https://elica-webservices.it
- * Description: Automatic VIP role assignment based on customer lifetime spending in WooCommerce.
- * Version:     1.0.0
- * Author:      Elisabetta Carrara
- * Author URI:  https://elica-webservices.it
- * License:     GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: wc-vip-club
- * Domain Path: /languages
- * Requires at least: 5.8
- * Tested up to: 6.6
- * Requires PHP: 8.2
- * Requires Plugins: woocommerce
+ * Plugin Name:       VIP Club
+ * Plugin URI:        https://elica-webservices.it
+ * Description:       Automatic VIP role assignment based on customer lifetime spending in WooCommerce.
+ * Version:           1.0.0
+ * Requires at least: 4.9.15
+ * Requires PHP:      8.2
+ * Requires CP:       2.0
+ * Author:            Elisabetta Carrara
+ * Author URI:        https://elica-webservices.it
+ * License:           GPL v2 or later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       wc-vip-club
+ * Domain Path:       /languages
+ * Tested up to:      6.6
+ * Requires Plugins:  woocommerce
+ * WC requires at least: 6.0
+ * WC tested up to:   9.5
+ * CC required at least: 2.0
+ * CC tested up to: 2.0.6
+ * Update URI:        https://elica-webservices.it
  *
  * @package    WC_VIP_Club
  * @author     Elisabetta Carrara <elisabetta.marina.clelia@gmail.com>

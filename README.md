@@ -1,6 +1,8 @@
 VIP Club for Woo and Classic Commerce
 =======================
 
+![WC VIP Club](images/wc-vip-club.png)
+
 Automatically upgrade customers to a VIP role when they reach a spending threshold. The plugin adds a VIP Club section to the account area, showing real-time progress toward VIP status.
 
 This plugin is designed to be theme-safe, multisite-ready, developer-extensible, and fully compatible with both WordPress/WooCommerce and ClassicPress/Classic Commerce environments.

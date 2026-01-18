@@ -301,11 +301,13 @@ final class WC_VIP_Club {
 			'<div class="notice notice-info"><p><strong>%s</strong></p><p>%s</p><p>%s</p></div>',
 			esc_html__( 'Settings preview:', 'wc-vip-club' ),
 			sprintf(
+				/* translators: 1: VIP role display name, 2: VIP role slug */
 				esc_html__( 'Role: %1$s (%2$s)', 'wc-vip-club' ),
 				'<code>' . esc_html( $this->get_role_name() ) . '</code>',
 				'<code>' . esc_html( $this->get_role_slug() ) . '</code>'
 			),
 			sprintf(
+				/* translators: %s: Formatted spending threshold amount */
 				esc_html__( 'Threshold: %s', 'wc-vip-club' ),
 				'<code>' . wp_kses_post( wc_price( $this->get_threshold() ) ) . '</code>'
 			)
@@ -363,6 +365,7 @@ final class WC_VIP_Club {
 		printf(
 			'<p>%s</p>',
 			sprintf(
+				/* translators: %s: Formatted lifetime spending amount */
 				esc_html__( 'Lifetime spending: %s', 'wc-vip-club' ),
 				'<strong>' . wp_kses_post( wc_price( $total ) ) . '</strong>'
 			)

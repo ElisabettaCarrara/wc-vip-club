@@ -172,7 +172,9 @@ Roadmap
 
 - Email notifications
 - REST API support
-PRO VERSION ADD-ON including
+
+PRO VERSION ADD-ON will include:
+
 - VIP tiers (Silver, Gold, Platinum)
 - Time-limited VIP memberships
 

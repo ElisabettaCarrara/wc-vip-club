@@ -3,6 +3,28 @@ VIP Club for Woo and Classic Commerce
 
 ![WC VIP Club](images/wc-vip-club.png)
 
+**Plugin Name:** VIP Club  
+**Plugin URI:** https://elica-webservices.it  
+**Description:** Automatic VIP role assignment based on customer lifetime spending in Woo / Classic Commerce.  
+**Version:** 1.0.0  
+**Requires at least:** 4.9.15  
+**Requires PHP:** 8.2  
+**Requires CP:** 2.0
+**Author:** Elisabetta Carrara  
+**Author URI:** https://elica-webservices.it  
+**License:** GPL v2 or later  
+**License URI:** https://www.gnu.org/licenses/gpl-2.0.html  
+**Text Domain:** wc-vip-club  
+**Domain Path:** /languages  
+**Tested up to:** 6.6  
+**Requires Plugins:** woocommerce  
+**WC requires at least:** 6.0  
+**WC tested up to:** 9.5  
+**CC requires at least:** 2.0
+**CC tested up to:** 2.0.6
+**Tags:** woocommerce, vip, customer-loyalty, roles, membership, classicpress  
+**Update URI:** https://elica-webservices.it
+
 Automatically upgrade customers to a VIP role when they reach a spending threshold. The plugin adds a VIP Club section to the account area, showing real-time progress toward VIP status.
 
 This plugin is designed to be theme-safe, multisite-ready, developer-extensible, and fully compatible with both WordPress/WooCommerce and ClassicPress/Classic Commerce environments.

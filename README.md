@@ -38,7 +38,7 @@ This plugin is designed to be theme-safe, multisite-ready, and developer-extensi
 - **Configurable VIP role name** and optional advanced role slug override
 - **Visual progress bar** in the My Account area
 - **Native settings page** integrated with WooCommerce
-- Uses **WooCommerce/Classic Commerce standard colors**
+- **WooCommerce standard colors** are used
 - **Multisite compatible** (per-site roles and settings)
 - **Hooks and filters** for third-party extensions
 - **Admin preview** of VIP role configuration

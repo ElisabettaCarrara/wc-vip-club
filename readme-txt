@@ -1,21 +1,21 @@
-=== VIP Club for Woo and Classic Commerce ===
-Contributors: yourusername
-Donate link: https://example.com/donate/?your-plugin=wc-vip-club
-Tags: vip-club, woocommerce, classicpress, membership
+=== WC VIP Club ===
+Contributors: Elisabetta Carrara
+Tags: vip-club, woocommerce, membership
 Requires at least: 5.8
 Tested up to: 6.6
-Requires PHP: 8.0
+Requires PHP: 8.2
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-VIP Club: Auto-upgrades customers to VIP role at spending threshold. Theme-safe, multisite-ready for WooCommerce & Classic Commerce.
+WC VIP Club: Auto-upgrades customers to VIP role at spending threshold. Theme-safe, multisite-ready for WooCommerce.
 
 == Description ==
 
-Automatically upgrade customers to a VIP role when they reach a spending threshold. The plugin adds a VIP Club section to the account area, showing real-time progress toward VIP status.
+Automatically upgrade customers to a VIP role when they reach a spending threshold. The plugin adds a VIP Club section to the account area.
+It also shows real-time progress toward VIP status on the My Account page.
 
-This plugin is designed to be theme-safe, multisite-ready, developer-extensible, and fully compatible with both WordPress/WooCommerce and ClassicPress/Classic Commerce environments.
+This plugin is designed to be theme-safe, multisite-ready, and developer-extensible.
 
 = Features =
 
@@ -34,13 +34,13 @@ This plugin is designed to be theme-safe, multisite-ready, developer-extensible,
 
 * WordPress 5.8 or later
 * WooCommerce 6.0 or later / Classic Commerce v2 or later
-* PHP 8.0 or later
+* PHP 8.2 or later
 
 == Installation ==
 
 1. Upload the plugin folder to `/wp-content/plugins/`
-2. Activate "VIP Club for WooCommerce" from the Plugins screen
-3. Go to WooCommerce / Classic Commerce > Settings > VIP Club
+2. Activate "WC VIP Club" from the Plugins screen
+3. Go to WooCommerce > Settings > VIP Club
 4. Configure the VIP role name, threshold, and optional role slug
 
 The plugin is now active.
@@ -55,13 +55,13 @@ No. The VIP role is added to the user. Existing roles are not removed.
 
 No. VIP status is permanent by default. Downgrades can be implemented via hooks if needed.
 
-= Can the plugin be used without Woo / Classic Commerce? =
+= Can the plugin be used without Woo? =
 
-No. The plugin relies on Woo / Classic Commerce order data.
+No. The plugin relies on Woo order data.
 
 == Screenshots ==
 
-1. VIP Club settings page
+1. WC VIP Club settings page
 2. Customer progress bar in My Account
 3. VIP status confirmation message
 

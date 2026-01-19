@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name:       VIP Club for WooCommerce
- * Plugin URI:        https://example.com/wc-vip-club
- * Description:       Automatically upgrades customers to VIP roles based on lifetime spending in WooCommerce.
+ * Plugin URI:        https://elica-webservices.it
+ * Description:       Automatically upgrades customers to VIP roles based on lifetime spending in Woo
  * Version:           1.0.0
  * Author:            Elisabetta Carrara
- * Author URI:        https://example.com
+ * Author URI:        https://elica-webservices.it
  * Text Domain:       wc-vip-club
  * Domain Path:       /languages
  * Requires at least: 6.0

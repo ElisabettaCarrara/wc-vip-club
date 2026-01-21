@@ -6,7 +6,7 @@ WC VIP Club
 **Plugin Name:** WC VIP Club  
 **Plugin URI:** https://elica-webservices.it  
 **Description:** Automatic VIP role assignment based on customer lifetime spending in Woo.  
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Requires at least:** 4.9.15  
 **Requires PHP:** 8.2  
 **Author:** Elisabetta Carrara  

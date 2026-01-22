@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
  */
 add_action(
 	'before_woocommerce_init',
-	function() {
+	function () {
 		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
 			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
 		}
@@ -67,9 +67,9 @@ function wc_vip_club_activate(): void {
 				'wc-vip-club'
 			),
 			esc_html__( 'Plugin activation error', 'wc-vip-club' ),
-			[
+			array(
 				'back_link' => true,
-			]
+			)
 		);
 	}
 
@@ -94,9 +94,12 @@ register_deactivation_hook( __FILE__, 'wc_vip_club_deactivate' );
 function wc_vip_club_init(): void {
 	// Only load if WooCommerce is ready.
 	if ( ! wc_vip_club_is_woocommerce_active() ) {
-		add_action( 'admin_notices', function() {
-			echo '<div class="notice notice-error"><p>' . esc_html__( 'WC VIP Club requires WooCommerce to be installed and active.', 'wc-vip-club' ) . '</p></div>';
-		} );
+		add_action(
+			'admin_notices',
+			function () {
+				echo '<div class="notice notice-error"><p>' . esc_html__( 'WC VIP Club requires WooCommerce to be installed and active.', 'wc-vip-club' ) . '</p></div>';
+			}
+		);
 		return;
 	}
 

@@ -124,9 +124,15 @@ class WC_VIP_Club {
 				'type'              => 'number',
 				'id'                => self::OPTION_THRESHOLD,
 				'default'           => '1000',
-				'custom_attributes' => array( 'min' => '0', 'step' => '0.01' ),
+				'custom_attributes' => array(
+					'min'  => '0',
+					'step' => '0.01',
+				),
 			),
-			array( 'type' => 'sectionend', 'id'   => 'vip_club_section_end' ),
+			array(
+				'type' => 'sectionend',
+				'id'   => 'vip_club_section_end',
+			),
 		);
 	}
 
@@ -145,7 +151,8 @@ class WC_VIP_Club {
 		}
 		$threshold_formatted = function_exists( 'wc_price' ) ? wc_price( $this->get_threshold() ) : $this->get_threshold();
 		echo '<div class="notice notice-info"><p>';
-		printf( esc_html__( 'Current Configuration: Role "%1$s" | Slug: %2$s | Threshold: %3$s', 'wc-vip-club' ),
+		printf(
+			esc_html__( 'Current Configuration: Role "%1$s" | Slug: %2$s | Threshold: %3$s', 'wc-vip-club' ),
 			'<code>' . esc_html( $this->get_role_name() ) . '</code>',
 			'<code>' . esc_html( $this->get_role_slug() ) . '</code>',
 			wp_kses_post( $threshold_formatted )
@@ -154,17 +161,17 @@ class WC_VIP_Club {
 	}
 
 	public function add_account_tab( array $items ): array {
-		$user = wp_get_current_user();
+		$user     = wp_get_current_user();
 		$progress = 0.0;
 
 		if ( $user instanceof WP_User && $user->exists() ) {
 			$threshold = $this->get_threshold();
-			$total = function_exists( 'wc_get_customer_total_spent' ) ? (float) wc_get_customer_total_spent( $user->ID ) : 0.0;
+			$total     = function_exists( 'wc_get_customer_total_spent' ) ? (float) wc_get_customer_total_spent( $user->ID ) : 0.0;
 			$progress  = $threshold > 0 ? ( $total / $threshold ) * 100 : 0.0;
 		}
 
 		$star_icon = $this->get_star_icon_html( $progress );
-		
+
 		// Use the Dynamic Role Name for the Tab Label
 		$vip_label = $star_icon . ' ' . $this->get_role_name();
 
@@ -179,10 +186,11 @@ class WC_VIP_Club {
 
 	private function get_star_icon_html( float $progress ): string {
 		$type = 'empty';
-		if ( $progress >= 100 ) { $type = 'full'; }
-		elseif ( $progress >= 50 ) { $type = 'half'; }
+		if ( $progress >= 100 ) {
+			$type = 'full'; } elseif ( $progress >= 50 ) {
+			$type = 'half'; }
 
-		return sprintf( '<span class="wc-vip-club-star wc-vip-club-star-%s"></span>', esc_attr( $type ) );
+			return sprintf( '<span class="wc-vip-club-star wc-vip-club-star-%s"></span>', esc_attr( $type ) );
 	}
 
 	public function enqueue_frontend_styles(): void {
@@ -190,23 +198,25 @@ class WC_VIP_Club {
 			return;
 		}
 		// Enqueue the actual CSS file from the plugin directory
-		wp_enqueue_style( 
-			'wc-vip-club-styles', 
-			WC_VIP_CLUB_PLUGIN_URL . 'assets/css/style.css', 
-			array(), 
-			WC_VIP_CLUB_VERSION 
+		wp_enqueue_style(
+			'wc-vip-club-styles',
+			WC_VIP_CLUB_PLUGIN_URL . 'assets/css/style.css',
+			array(),
+			WC_VIP_CLUB_VERSION
 		);
 	}
 
 	public function render_account_tab(): void {
 		$user = wp_get_current_user();
-		if ( ! $user instanceof WP_User || ! $user->exists() ) return;
+		if ( ! $user instanceof WP_User || ! $user->exists() ) {
+			return;
+		}
 
 		$role_name = $this->get_role_name();
 		$is_vip    = in_array( $this->get_role_slug(), (array) $user->roles, true );
 		$total     = function_exists( 'wc_get_customer_total_spent' ) ? (float) wc_get_customer_total_spent( $user->ID ) : 0.0;
 		$threshold = $this->get_threshold();
-		
+
 		$progress  = $threshold > 0 ? min( 100, ( $total / $threshold ) * 100 ) : 0.0;
 		$star_icon = $this->get_star_icon_html( $progress );
 
@@ -222,7 +232,7 @@ class WC_VIP_Club {
 		// Progress Section
 		echo '<div class="wc-vip-progress">';
 		echo '<div class="wc-vip-progress-bar"><span style="width:' . esc_attr( $progress ) . '%;"></span></div>';
-		
+
 		echo '<div class="wc-vip-meta">';
 		echo '<span>' . wp_kses_post( wc_price( $total ) ) . ' ' . esc_html__( 'spent', 'wc-vip-club' ) . '</span>';
 		echo '<span>' . esc_html__( 'Goal:', 'wc-vip-club' ) . ' ' . wp_kses_post( wc_price( $threshold ) ) . '</span>';
@@ -232,8 +242,8 @@ class WC_VIP_Club {
 		if ( ! $is_vip && $threshold > $total ) {
 			$remaining = $threshold - $total;
 			echo '<p style="margin-top: 1rem; font-style: italic;">';
-			printf( 
-				esc_html__( 'You are only %s away from unlocking your %s status! Keep going!', 'wc-vip-club' ), 
+			printf(
+				esc_html__( 'You are only %1$s away from unlocking your %2$s status! Keep going!', 'wc-vip-club' ),
 				'<strong>' . wp_kses_post( wc_price( $remaining ) ) . '</strong>',
 				esc_html( $role_name )
 			);
@@ -244,16 +254,22 @@ class WC_VIP_Club {
 	}
 
 	public function maybe_promote_customer_to_vip( int $order_id ): void {
-		if ( $order_id <= 0 || ! function_exists( 'wc_get_order' ) ) return;
-		$order = wc_get_order( $order_id );
+		if ( $order_id <= 0 || ! function_exists( 'wc_get_order' ) ) {
+			return;
+		}
+		$order   = wc_get_order( $order_id );
 		$user_id = $order ? $order->get_user_id() : 0;
-		if ( ! $user_id ) return;
+		if ( ! $user_id ) {
+			return;
+		}
 
 		$user = get_user_by( 'id', $user_id );
-		if ( ! in_array( 'customer', (array) $user->roles, true ) ) return;
+		if ( ! in_array( 'customer', (array) $user->roles, true ) ) {
+			return;
+		}
 
 		$threshold = $this->get_threshold();
-		$total = (float) wc_get_customer_total_spent( $user_id );
+		$total     = (float) wc_get_customer_total_spent( $user_id );
 
 		if ( $threshold > 0 && $total >= $threshold ) {
 			$user->set_role( $this->get_role_slug() );

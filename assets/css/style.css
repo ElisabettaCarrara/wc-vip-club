@@ -4,88 +4,88 @@
 
 /* Main Container */
 .wc-vip-wrapper {
-    max-width: 720px;
-    padding: 2rem;
-    background: var(--wc-content-bg, #fff);
-    border-radius: 12px;
-    border: 1px solid var(--wc-border-color, #e5e5e5);
-    margin-bottom: 2rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+	max-width: 720px;
+	padding: 2rem;
+	background: var(--wc-content-bg, #fff);
+	border-radius: 12px;
+	border: 1px solid var(--wc-border-color, #e5e5e5);
+	margin-bottom: 2rem;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 /* Heading & Icon */
 .wc-vip-wrapper h2 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: var(--wc-primary, #7f54b3);
-    display: flex;
-    align-items: center;
-    font-size: 1.5rem;
+	margin-top: 0;
+	margin-bottom: 1.5rem;
+	color: var(--wc-primary, #7f54b3);
+	display: flex;
+	align-items: center;
+	font-size: 1.5rem;
 }
 
 /* Success / Achievement Box */
 .wc-vip-success {
-    padding: 1.25rem;
-    background: color-mix(in srgb, var(--wc-primary, #7f54b3) 8%, transparent);
-    border-left: 4px solid var(--wc-primary, #7f54b3);
-    border-radius: 6px;
-    margin-bottom: 1.5rem;
-    color: var(--wc-primary, #7f54b3);
+	padding: 1.25rem;
+	background: color-mix(in srgb, var(--wc-primary, #7f54b3) 8%, transparent);
+	border-left: 4px solid var(--wc-primary, #7f54b3);
+	border-radius: 6px;
+	margin-bottom: 1.5rem;
+	color: var(--wc-primary, #7f54b3);
 }
 
 /* Progress Bar Container */
 .wc-vip-progress {
-    margin-top: 2rem;
+	margin-top: 2rem;
 }
 
 /* The Track */
 .wc-vip-progress-bar {
-    height: 14px;
-    background: #f0f0f0;
-    border-radius: 10px;
-    overflow: hidden;
-    position: relative;
-    border: 1px solid rgba(0,0,0,0.05);
+	height: 14px;
+	background: #f0f0f0;
+	border-radius: 10px;
+	overflow: hidden;
+	position: relative;
+	border: 1px solid rgba(0,0,0,0.05);
 }
 
 /* The Fill */
 .wc-vip-progress-bar span {
-    display: block;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        var(--wc-primary, #7f54b3),
-        var(--wc-secondary, #2c2d33)
-    );
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+	display: block;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		var(--wc-primary, #7f54b3),
+		var(--wc-secondary, #2c2d33)
+	);
+	transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Label/Data row (Spent vs Goal) */
 .wc-vip-meta {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--wc-secondary-text, #666);
+	display: flex;
+	justify-content: space-between;
+	margin-top: 0.75rem;
+	font-size: 0.9rem;
+	font-weight: 500;
+	color: var(--wc-secondary-text, #666);
 }
 
 .wc-vip-meta span strong {
-    color: var(--wc-primary, #000);
+	color: var(--wc-primary, #000);
 }
 
 /* Motivational Message */
 .wc-vip-motivation {
-    margin-top: 1.25rem;
-    padding-top: 1rem;
-    border-top: 1px dashed var(--wc-border-color, #e5e5e5);
-    font-style: italic;
-    color: var(--wc-secondary-text, #777);
-    line-height: 1.5;
+	margin-top: 1.25rem;
+	padding-top: 1rem;
+	border-top: 1px dashed var(--wc-border-color, #e5e5e5);
+	font-style: italic;
+	color: var(--wc-secondary-text, #777);
+	line-height: 1.5;
 }
 
 .wc-vip-motivation strong {
-    color: var(--wc-primary, #7f54b3);
+	color: var(--wc-primary, #7f54b3);
 }
 
 /* =========================
@@ -93,64 +93,64 @@
  * ========================= */
 
 .wc-vip-club-star {
-    display: inline-block;
-    width: 1.2em;
-    height: 1.2em;
-    margin-right: 0.5em;
-    vertical-align: middle;
-    line-height: 1;
+	display: inline-block;
+	width: 1.2em;
+	height: 1.2em;
+	margin-right: 0.5em;
+	vertical-align: middle;
+	line-height: 1;
 }
 
 .wc-vip-club-star::before {
-    content: "★";
-    display: block;
-    line-height: 1;
-    font-size: 1.3em;
+	content: "★";
+	display: block;
+	line-height: 1;
+	font-size: 1.3em;
 }
 
 /* Empty Star */
 .wc-vip-club-star-empty::before {
-    color: #dcdcde;
+	color: #dcdcde;
 }
 
 /* Half Star (Progressing) */
 .wc-vip-club-star-half::before {
-    background: linear-gradient(
-        90deg,
-        #f7b500 50%,
-        #dcdcde 50%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
+	background: linear-gradient(
+		90deg,
+		#f7b500 50%,
+		#dcdcde 50%
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
 }
 
 /* Full Star (VIP) */
 .wc-vip-club-star-full::before {
-    color: #f7b500;
-    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+	color: #f7b500;
+	filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
 }
 
 /* Star behavior in the Tab Menu */
 .woocommerce-MyAccount-navigation-link--vip_club .wc-vip-club-star {
-    font-size: 0.9em;
-    margin-right: 6px;
+	font-size: 0.9em;
+	margin-right: 6px;
 }
 
 /* Mobile Adjustments */
 @media (max-width: 480px) {
-    .wc-vip-wrapper {
-        padding: 1.25rem;
-    }
-    
-    .wc-vip-meta {
-        flex-direction: column;
-        gap: 4px;
-        text-align: center;
-    }
+	.wc-vip-wrapper {
+		padding: 1.25rem;
+	}
 
-    .wc-vip-wrapper h2 {
-        font-size: 1.25rem;
-    }
+	.wc-vip-meta {
+		flex-direction: column;
+		gap: 4px;
+		text-align: center;
+	}
+
+	.wc-vip-wrapper h2 {
+		font-size: 1.25rem;
+	}
 }

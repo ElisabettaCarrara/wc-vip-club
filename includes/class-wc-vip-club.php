@@ -59,24 +59,39 @@ class WC_VIP_Club {
 	 * Register all WordPress/WooCommerce hooks.
 	 */
 	private function register_hooks(): void {
-		// Initialization
+		// Initialization.
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 
-		// Settings
+		// Settings.
+		/**
+		 * Filters the WooCommerce settings tabs array.
+		 *
+		 * @since 1.0.0
+		 */
 		add_filter( 'woocommerce_settings_tabs_array', array( $this, 'add_settings_tab' ), 50 );
 		add_action( 'woocommerce_settings_vip_club', array( $this, 'render_settings_tab' ) );
 		add_action( 'woocommerce_update_options_vip_club', array( $this, 'save_settings' ) );
 		add_action( 'admin_notices', array( $this, 'settings_preview_notice' ) );
 
-		// My Account
+		// My Account.
+		/**
+		 * Filters the WooCommerce account menu items.
+		 *
+		 * @since 1.0.0
+		 */
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'add_account_tab' ), 10 );
 		add_action( 'woocommerce_account_vip_club_endpoint', array( $this, 'render_account_tab' ) );
 
-		// Promotion logic
+		// Promotion logic.
+		/**
+		 * Fires when an order status is changed to completed.
+		 *
+		 * @since 1.0.0
+		 */
 		add_action( 'woocommerce_order_status_completed', array( $this, 'maybe_promote_customer_to_vip' ), 20 );
 
-		// Frontend styles
+		// Frontend styles.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_styles' ) );
 	}
 
@@ -154,6 +169,8 @@ class WC_VIP_Club {
 
 		/**
 		 * Action triggered after VIP Club role is synced.
+		 *
+		 * @since 1.0.0
 		 *
 		 * @param string $slug Role slug.
 		 * @param string $name Role name.
@@ -243,6 +260,7 @@ class WC_VIP_Club {
 	 * Show admin notice for VIP Club settings preview.
 	 */
 	public function settings_preview_notice(): void {
+		// Nonce is not required for read-only display of settings.
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
@@ -250,6 +268,7 @@ class WC_VIP_Club {
 		$threshold_formatted = function_exists( 'wc_price' ) ? wc_price( $this->get_threshold() ) : $this->get_threshold();
 
 		echo '<div class="notice notice-info"><p>';
+		/* translators: 1: Role name, 2: Role slug, 3: Spending threshold amount. */
 		printf(
 			esc_html__( 'Current Configuration: Role "%1$s" | Slug: %2$s | Threshold: %3$s', 'wc-vip-club' ),
 			'<code>' . esc_html( $this->get_role_name() ) . '</code>',
@@ -272,7 +291,7 @@ class WC_VIP_Club {
 		if ( $user instanceof WP_User && $user->exists() ) {
 			$threshold = $this->get_threshold();
 			$total     = function_exists( 'wc_get_customer_total_spent' ) ? (float) wc_get_customer_total_spent( $user->ID ) : 0.0;
-			$progress  = $threshold > 0 ? ( $total / $threshold ) * 100 : 0.0;
+			$progress  = 0 < $threshold ? ( $total / $threshold ) * 100 : 0.0;
 		}
 
 		$star_icon = $this->get_star_icon_html( $progress );
@@ -299,9 +318,9 @@ class WC_VIP_Club {
 	private function get_star_icon_html( float $progress ): string {
 		$type = 'empty';
 
-		if ( $progress >= 100 ) {
+		if ( 100 <= $progress ) {
 			$type = 'full';
-		} elseif ( $progress >= 50 ) {
+		} elseif ( 50 <= $progress ) {
 			$type = 'half';
 		}
 
@@ -337,7 +356,7 @@ class WC_VIP_Club {
 		$is_vip    = in_array( $this->get_role_slug(), (array) $user->roles, true );
 		$total     = function_exists( 'wc_get_customer_total_spent' ) ? (float) wc_get_customer_total_spent( $user->ID ) : 0.0;
 		$threshold = $this->get_threshold();
-		$progress  = $threshold > 0 ? min( 100, ( $total / $threshold ) * 100 ) : 0.0;
+		$progress  = 0 < $threshold ? min( 100, ( $total / $threshold ) * 100 ) : 0.0;
 		$star_icon = $this->get_star_icon_html( $progress );
 
 		echo '<div class="wc-vip-wrapper">';
@@ -346,14 +365,14 @@ class WC_VIP_Club {
 		if ( $is_vip ) {
 			echo '<div class="wc-vip-success">';
 			echo '<strong>' . sprintf(
-				/* translators: %s is role name */
+				/* translators: %s is role name. */
 				esc_html__( 'Welcome to the %s! Enjoy your exclusive benefits.', 'wc-vip-club' ),
 				esc_html( $role_name )
 			) . '</strong>';
 			echo '</div>';
 		}
 
-		// Progress Section
+		// Progress Section.
 		echo '<div class="wc-vip-progress">';
 		echo '<div class="wc-vip-progress-bar"><span style="width:' . esc_attr( $progress ) . '%;"></span></div>';
 		echo '<div class="wc-vip-meta">';
@@ -361,12 +380,12 @@ class WC_VIP_Club {
 		echo '<span>' . esc_html__( 'Goal:', 'wc-vip-club' ) . ' ' . wp_kses_post( wc_price( $threshold ) ) . '</span>';
 		echo '</div>';
 
-		// Motivational Message
+		// Motivational Message.
 		if ( ! $is_vip && $threshold > $total ) {
 			$remaining = $threshold - $total;
 			echo '<p style="margin-top:1rem;font-style:italic;">';
 			printf(
-				/* translators: %1$s remaining amount, %2$s role name */
+				/* translators: 1: Remaining amount, 2: Role name. */
 				esc_html__( 'You are only %1$s away from unlocking your %2$s status! Keep going!', 'wc-vip-club' ),
 				'<strong>' . wp_kses_post( wc_price( $remaining ) ) . '</strong>',
 				esc_html( $role_name )
@@ -374,8 +393,8 @@ class WC_VIP_Club {
 			echo '</p>';
 		}
 
-		echo '</div>'; // End progress
-		echo '</div>'; // End wrapper
+		echo '</div>'; // End progress.
+		echo '</div>'; // End wrapper.
 	}
 
 	/**
@@ -384,7 +403,7 @@ class WC_VIP_Club {
 	 * @param int $order_id WooCommerce order ID.
 	 */
 	public function maybe_promote_customer_to_vip( int $order_id ): void {
-		if ( $order_id <= 0 || ! function_exists( 'wc_get_order' ) ) {
+		if ( 0 >= $order_id || ! function_exists( 'wc_get_order' ) ) {
 			return;
 		}
 
@@ -404,11 +423,13 @@ class WC_VIP_Club {
 		$threshold = $this->get_threshold();
 		$total     = (float) wc_get_customer_total_spent( $user_id );
 
-		// Yoda condition
+		// Yoda condition.
 		if ( 0 < $threshold && $total >= $threshold ) {
 			$user->set_role( $this->get_role_slug() );
 			/**
 			 * Action triggered when customer is promoted to VIP.
+			 *
+			 * @since 1.0.0
 			 *
 			 * @param int    $user_id   Customer ID.
 			 * @param string $role_slug VIP role slug.

@@ -1,53 +1,41 @@
-name: Auto-fix WPCS & CPCS with PHPCBF (WPCS priority)
+name: Auto-fix WPCS & CPCS with PHPCBF (WPCS Priority)
 
 on:
-  pull_request:
   workflow_run:
-    workflows: ["ClassicPress Directory Coding Standard checks.", "WPCS checks"]  # Your workflow names
-    types: [requested, completed]
+    workflows: ["ClassicPress Directory Coding Standard checks.", "WPCS checks"]  # Update with your exact names
+    types: [completed]
+  pull_request:
 
 jobs:
   auto-fix:
-    name: PHPCBF Fixes (WPCS first)
+    # Runs only if checks failed
     if: ${{ github.event.workflow_run.conclusion == 'failure' || github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Fetch WPCS rules (VIP/Woo)
-        run: |
-          wget -O phpcs-wpcs.xml https://raw.githubusercontent.com/WordPress/WordPress-Coding-Standards/wpcs-stable/phpcs.xml.dist
-          sed -i '/^\t<!-- start config -->.*/a\
-            <file>.</file>\
-          ' phpcs-wpcs.xml
-          echo "WordPress VIP Coding Standards installed."
-      - name: PHPCBF WPCS (priority)
+          ref: ${{ github.head_ref }}
+
+      - name: PHPCBF WPCS-VIP (Priority for Woo)
         uses: 10up/wpcs-action@v1.7.0
         with:
-          use_local_config: 'true'
-          phpcbf: 'true'
-          extra_args: '--standard=phpcs-wpcs.xml'
-      - name: Fetch CPCS rules
-        run: |
-          wget -O phpcs-cpcs.xml https://raw.githubusercontent.com/ClassicPress/ClassicPress-Coding-Standards/main/phpcs.xml
-          sed -i '/^\t<!-- start config -->.*/a\
-            <file>.</file>\
-          ' phpcs-cpcs.xml
-          sed -i 's/MY_DOMAIN/wc-vip-club/g' phpcs-cpcs.xml
+          standard: WordPress-VIP-Go
+          phpcbf: true
+
       - name: PHPCBF CPCS
         uses: 10up/wpcs-action@v1.7.0
         with:
-          use_local_config: 'true'
-          phpcbf: 'true'
-          extra_args: '--standard=phpcs-cpcs.xml'
-      - name: Commit & PR fixes
+          standard_repo: https://github.com/ClassicPress/ClassicPress-Coding-Standards
+          phpcbf: true
+          extra_args: '--runtime-set ignore_warnings_on_exit 1'
+
+      - name: Commit fixes if any
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'fix: auto PHPCBF WPCS (priority) & CPCS'
-          file_pattern: '*.php **/*.php'
-          create_branch: true
+          commit_message: 'fix: auto PHPCBF WPCS-VIP (priority) & CPCS'
+          file_pattern: '*.php'

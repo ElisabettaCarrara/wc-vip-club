@@ -23,13 +23,15 @@ jobs:
           extra_args: '--report-json=./phpcs.json --extensions=php'
           enable_warnings: true
 
-      - name: Summary
+            - name: Summary
         if: always()
         run: |
-          npm i -g https://github.com/10up/phpcs-json-to-md/tarball/master
-          touch ./phpcs.json || true
-          phpcs-json-to-md --path ./phpcs.json --output ./phpcs.md || echo "## No issues" > ./phpcs.md
+          npm install ./  # Local install, no global perms
+          npm i -g https://github.com/10up/phpcs-json-to-md/tarball/master || true
+          [ -f ./phpcs.json ] || echo '{}' > ./phpcs.json
+          npx phpcs-json-to-md --path ./phpcs.json --output ./phpcs.md || echo "## No issues" > ./phpcs.md
           cat ./phpcs.md >> $GITHUB_STEP_SUMMARY
+        shell: bash
 
       - name: Setup PHP for PHPCBF
         uses: shivammathur/setup-php@v2

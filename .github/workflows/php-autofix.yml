@@ -1,0 +1,39 @@
+name: PHP Autofix (PHPCBF)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  autofix:
+    name: Autofix PHP Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: |
+          composer require --dev squizlabs/php_codesniffer wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer
+
+      - name: Configure PHPCS standards
+        run: vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
+
+      - name: Run PHPCBF (auto-fix)
+        run: |
+          vendor/bin/phpcbf --standard=WordPress-VIP-Go .
+
+      - name: Commit and push fixes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: apply PHPCBF auto-fixes"
+          branch: "phpcbf/fixes"
+          push: true

@@ -21,27 +21,29 @@ jobs:
         with:
           ref: ${{ github.head_ref }}
 
-      - name: Set up PHP
+      - name: Set up PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           tools: composer
 
+      - name: Cache Composer
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
       - name: Allow PHPCS Composer plugin
         run: composer config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
 
-      - name: Install PHPCS + sniffs
-        run: |
-          composer require --dev \
-            squizlabs/php_codesniffer \
-            wp-coding-standards/wpcs \
-            woocommerce/woocommerce-sniffs \
-            dealerdirect/phpcodesniffer-composer-installer
+      - name: Install PHPCS + WPCS + WooCommerce sniffs
+        run: composer install --no-interaction --prefer-dist
 
       - name: Run PHPCBF (autofix)
-        run: vendor/bin/phpcbf ./ --standard=phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/* || true
+        run: vendor/bin/phpcbf ./ --standard=phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/* || true
 
-      - name: Commit fixes
+      - name: Commit auto-fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: PHPCBF auto-fixes"

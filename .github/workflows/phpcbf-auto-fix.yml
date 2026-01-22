@@ -1,0 +1,53 @@
+name: Auto-fix WPCS & CPCS with PHPCBF (WPCS priority)
+
+on:
+  pull_request:
+  workflow_run:
+    workflows: ["ClassicPress Directory Coding Standard checks.", "WPCS checks"]  # Your workflow names
+    types: [requested, completed]
+
+jobs:
+  auto-fix:
+    name: PHPCBF Fixes (WPCS first)
+    if: ${{ github.event.workflow_run.conclusion == 'failure' || github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch WPCS rules (VIP/Woo)
+        run: |
+          wget -O phpcs-wpcs.xml https://raw.githubusercontent.com/WordPress/WordPress-Coding-Standards/wpcs-stable/phpcs.xml.dist
+          sed -i '/^\t<!-- start config -->.*/a\
+            <file>.</file>\
+          ' phpcs-wpcs.xml
+          echo "WordPress VIP Coding Standards installed."
+      - name: PHPCBF WPCS (priority)
+        uses: 10up/wpcs-action@v1.7.0
+        with:
+          use_local_config: 'true'
+          phpcbf: 'true'
+          extra_args: '--standard=phpcs-wpcs.xml'
+      - name: Fetch CPCS rules
+        run: |
+          wget -O phpcs-cpcs.xml https://raw.githubusercontent.com/ClassicPress/ClassicPress-Coding-Standards/main/phpcs.xml
+          sed -i '/^\t<!-- start config -->.*/a\
+            <file>.</file>\
+          ' phpcs-cpcs.xml
+          sed -i 's/MY_DOMAIN/wc-vip-club/g' phpcs-cpcs.xml
+      - name: PHPCBF CPCS
+        uses: 10up/wpcs-action@v1.7.0
+        with:
+          use_local_config: 'true'
+          phpcbf: 'true'
+          extra_args: '--standard=phpcs-cpcs.xml'
+      - name: Commit & PR fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'fix: auto PHPCBF WPCS (priority) & CPCS'
+          file_pattern: '*.php **/*.php'
+          create_branch: true

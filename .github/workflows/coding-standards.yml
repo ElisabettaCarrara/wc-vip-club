@@ -23,10 +23,17 @@ jobs:
           php-version: '8.2'
           tools: composer
 
-      - name: Install Standards (no composer.json needed)
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+      - name: Install Composer Deps
         run: |
-          composer require --no-install --no-progress --dev wp-coding-standards/wpcs:^3.1 squizlabs/php_codesniffer:^3.10
-          composer install --no-progress --no-interaction --no-dev
+          composer init --no-interaction --name=wc-vip-club/plugin --type=wordpress-plugin
+          composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer require --dev wp-coding-standards/wpcs:^3.1 squizlabs/php_codesniffer:^3.10 --no-progress --no-interaction
 
       - name: CPCS Config
         run: |

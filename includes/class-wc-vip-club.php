@@ -121,6 +121,12 @@ class WC_VIP_Club {
 	 */
 	public function get_role_name(): string {
 		$default = __( 'VIP Club', 'wc-vip-club' );
+		/**
+		 * Filters the VIP Club role name.
+		 *
+		 * @since 1.0.0
+		 * @param string $name The role display name.
+		 */
 		return (string) apply_filters( 'vip_club_role_name', get_option( self::OPTION_ROLE_NAME, $default ) );
 	}
 
@@ -132,6 +138,12 @@ class WC_VIP_Club {
 	public function get_role_slug(): string {
 		$override = get_option( self::OPTION_ROLE_SLUG );
 		$slug     = $override ? sanitize_key( (string) $override ) : sanitize_key( $this->get_role_name() );
+		/**
+		 * Filters the VIP Club role slug.
+		 *
+		 * @since 1.0.0
+		 * @param string $slug The role slug.
+		 */
 		return (string) apply_filters( 'vip_club_role_slug', $slug );
 	}
 
@@ -141,6 +153,12 @@ class WC_VIP_Club {
 	 * @return float
 	 */
 	public function get_threshold(): float {
+		/**
+		 * Filters the VIP Club spending threshold.
+		 *
+		 * @since 1.0.0
+		 * @param float $threshold The threshold amount.
+		 */
 		return (float) apply_filters( 'vip_club_threshold', get_option( self::OPTION_THRESHOLD, 1000 ) );
 	}
 
@@ -433,6 +451,15 @@ class WC_VIP_Club {
 
 		if ( $threshold > 0 && $total >= $threshold ) {
 			$user->set_role( $this->get_role_slug() );
+			/**
+			 * Action triggered when a customer is promoted to VIP status.
+			 *
+			 * @since 1.0.0
+			 * @param int    $user_id   The ID of the user being promoted.
+			 * @param string $role_slug The new VIP role slug.
+			 * @param float  $total     Total amount spent by the customer.
+			 * @param float  $threshold The threshold required for promotion.
+			 */
 			do_action( 'vip_club_customer_promoted', $user_id, $this->get_role_slug(), $total, $threshold );
 		}
 	}

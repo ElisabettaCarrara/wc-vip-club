@@ -1,0 +1,31 @@
+name: WPCS Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - '**/*'
+
+jobs:
+  wpcs:
+    name: WPCS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install dependencies
+        run: |
+          composer require --dev squizlabs/php_codesniffer wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer
+
+      - name: Configure PHPCS WordPress standards
+        run: vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
+
+      - name: Run WPCS
+        run: vendor/bin/phpcs --standard=WordPress-VIP-Go .

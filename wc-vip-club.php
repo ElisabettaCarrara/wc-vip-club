@@ -12,7 +12,7 @@
  * Requires PHP:      8.2
  * Requires Plugins:  woocommerce
  * WC requires at least: 6.0
- * WC tested up to:   9.5
+ * WC tested up to:    9.5
  *
  * @package WC_VIP_Club
  */
@@ -43,7 +43,8 @@ define( 'WC_VIP_CLUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
  * Check whether WooCommerce is active.
- * * @return bool True if WooCommerce is active, false otherwise.
+ *
+ * @return bool True if WooCommerce is active, false otherwise.
  */
 function wc_vip_club_is_woocommerce_active(): bool {
 	if ( ! function_exists( 'is_plugin_active' ) ) {
@@ -56,6 +57,8 @@ function wc_vip_club_is_woocommerce_active(): bool {
 /**
  * Plugin activation callback.
  * Ensures requirements are met and registers the My Account rewrite rules.
+ *
+ * @return void
  */
 function wc_vip_club_activate(): void {
 	if ( ! wc_vip_club_is_woocommerce_active() ) {
@@ -81,6 +84,8 @@ register_activation_hook( __FILE__, 'wc_vip_club_activate' );
 /**
  * Plugin deactivation callback.
  * Cleans up rewrite rules when the plugin is turned off.
+ *
+ * @return void
  */
 function wc_vip_club_deactivate(): void {
 	flush_rewrite_rules();
@@ -90,6 +95,8 @@ register_deactivation_hook( __FILE__, 'wc_vip_club_deactivate' );
 /**
  * Bootstrap the plugin.
  * Loads the core logic class once all other plugins are loaded.
+ *
+ * @return void
  */
 function wc_vip_club_init(): void {
 	// Only load if WooCommerce is ready.
@@ -110,7 +117,7 @@ function wc_vip_club_init(): void {
 
 		// Initialize the main class singleton.
 		if ( class_exists( 'WC_VIP_Club' ) ) {
-			WC_VIP_Club::get_instance();
+			\WC_VIP_Club::get_instance();
 		}
 	}
 }

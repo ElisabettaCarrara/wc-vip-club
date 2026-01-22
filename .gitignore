@@ -1,0 +1,17 @@
+# Core & OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# PHP/Composer
+vendor/
+composer.lock
+
+# Tools & Configs
+.phpcs.xml.dist
+phpcs.xml
+.editorconfig
+.distignore

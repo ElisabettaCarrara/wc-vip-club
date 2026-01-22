@@ -31,7 +31,6 @@ jobs:
 
       - name: Install Standards
         run: |
-          composer init --no-interaction
           composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer require --dev wp-coding-standards/wpcs:^3.1 squizlabs/php_codesniffer:^3.10 --no-progress
 
@@ -43,18 +42,18 @@ jobs:
 
       - name: PHPCS WPCS + CPCS
         run: |
-          ./vendor/bin/phpcs . --extensions=php --ignore=vendor, node_modules --standard=WordPress,phpcs.xml --report-json=phpcs.json -n
+          ./vendor/bin/phpcs . --extensions=php --ignore=vendor/,node_modules/ --standard=WordPress,phpcs.xml --report-json=./phpcs.json --report-summary=1 -q
 
       - name: Summary
         if: always()
         run: |
           npm i -g https://github.com/10up/phpcs-json-to-md/tarball/master
-          phpcs-json-to-md --path ./phpcs.json --output ./phpcs.md
+          touch ./phpcs.json
+          phpcs-json-to-md --path ./phpcs.json --output ./phpcs.md || echo "## No issues found" > ./phpcs.md
           cat ./phpcs.md >> $GITHUB_STEP_SUMMARY
 
       - name: PHPCBF Auto-Fix
-        run: |
-          ./vendor/bin/phpcbf . --extensions=php --ignore=vendor,node_modules --standard=WordPress,phpcs.xml
+        run: ./vendor/bin/phpcbf . --extensions=php --ignore=vendor/,node_modules/ --standard=WordPress,phpcs.xml
 
       - name: Commit Fixes
         uses: stefanzweifel/git-auto-commit-action@v5

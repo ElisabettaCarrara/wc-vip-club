@@ -1,4 +1,4 @@
-name: Coding Standards (WPCS/CPCS + Auto-Fix)
+name: Coding Standards + Auto-Fix
 
 on: [push, pull_request]
 
@@ -11,53 +11,45 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: WPCS + CPCS Lint & JSON
+        uses: 10up/wpcs-action@v1.7.0
         with:
-          php-version: '8.2'
-          tools: composer
-
-      - name: Cache Composer
-        uses: actions/cache@v4
-        with:
-          path: ~/.composer/cache
-          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-
-      - name: Install Composer Deps
-        run: |
-          composer init --no-interaction --name=wc-vip-club/plugin --type=wordpress-plugin
-          composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-          composer require --dev wp-coding-standards/wpcs:^3.1 squizlabs/php_codesniffer:^3.10 --no-progress --no-interaction
-
-      - name: CPCS Config
-        run: |
-          wget -O phpcs.xml https://raw.githubusercontent.com/ClassicPress/ClassicPress-Coding-Standards/main/phpcs.xml
-          sed -i '/^\t<!-- start config -->/a <file>.</file>' phpcs.xml
-          sed -i 's/MY_DOMAIN/wc-vip-club/g' phpcs.xml
-
-      - name: PHPCS WPCS + CPCS
-        run: |
-          ./vendor/bin/phpcs . --extensions=php --ignore=vendor/,node_modules/ --standard=WordPress,phpcs.xml --report-json=./phpcs.json --report-summary=1 -q
+          standard: WordPress-VIP-Go
+          extra_args: '--report-json=./phpcs.json --extensions=php'
+          enable_warnings: true
 
       - name: Summary
         if: always()
         run: |
           npm i -g https://github.com/10up/phpcs-json-to-md/tarball/master
           touch ./phpcs.json || true
-          phpcs-json-to-md --path ./phpcs.json --output ./phpcs.md || echo "## No issues found" > ./phpcs.md
+          phpcs-json-to-md --path ./phpcs.json --output ./phpcs.md || echo "## No issues" > ./phpcs.md
           cat ./phpcs.md >> $GITHUB_STEP_SUMMARY
 
+      - name: Setup PHP for PHPCBF
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install PHPCBF
+        run: |
+          curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+          chmod +x phpcs.phar
+          mv phpcs.phar /usr/local/bin/phpcs
+          curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar
+          chmod +x phpcbf.phar
+          mv phpcbf.phar /usr/local/bin/phpcbf
+
       - name: PHPCBF Auto-Fix
-        run: ./vendor/bin/phpcbf . --extensions=php --ignore=vendor/,node_modules/ --standard=WordPress,phpcs.xml
+        run: phpcbf . --standard=WordPress-VIP-Go --extensions=php --ignore=vendor/,node_modules/
 
       - name: Commit Fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'fix: PHPCBF WPCS/CPCS [skip ci]'
+          commit_message: 'fix: PHPCBF VIP/WPCS [skip ci]'
           file_pattern: '*.php'

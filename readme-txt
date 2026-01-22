@@ -1,162 +1,105 @@
 === WC VIP Club ===
-Contributors: Elisabetta Carrara
-Tags: vip-club, woocommerce, membership
-Requires at least: 5.8
+Contributors: elisabettacarrara
+Tags: woocommerce, vip, loyalty, customer-role, spending
+Requires at least: 6.0
 Tested up to: 6.6
 Requires PHP: 8.2
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-WC VIP Club: Auto-upgrades customers to VIP role at spending threshold. Theme-safe, multisite-ready for WooCommerce.
+Automatic VIP role assignment based on customer lifetime spending in WooCommerce. Includes a visual progress tracker in the My Account area.
 
 == Description ==
 
-Automatically upgrade customers to a VIP role when they reach a spending threshold. The plugin adds a VIP Club section to the account area.
-It also shows real-time progress toward VIP status on the My Account page.
+WC VIP Club monitors customer spending and automatically upgrades your most loyal shoppers to a VIP role. It provides a visual progress tracker in the "My Account" area, gamifying the shopping experience to encourage repeat purchases.
 
 This plugin is designed to be theme-safe, multisite-ready, and developer-extensible.
 
-= Features =
+= User Guide =
 
-* Automatic VIP role assignment based on total customer spending
-* Configurable VIP role name
-* Optional advanced role slug override
-* Visual progress bar in the My Account area
-* Native settings page
-* Uses Woo/Classic Commerce standard colors
-* Multisite compatible (per-site roles and settings)
-* Hooks and filters for third-party extensions
-* Admin preview of VIP role configuration
-* Translation ready
+1. Admin Setup: Navigate to WooCommerce > Settings > VIP Club. Set your "VIP Role Name" and the "Spending Threshold" required to reach it.
+2. The Customer Experience: Customers see a new "VIP Club" tab in their dashboard showing a visual progress bar of their lifetime spend versus the goal.
+3. Automatic Promotion: When an order is marked as Processing or Completed, the plugin checks if the threshold is met and instantly upgrades the user role.
 
-= Requirements =
+= Key Features =
 
-* WordPress 5.8 or later
-* WooCommerce 6.0 or later / Classic Commerce v2 or later
-* PHP 8.2 or later
+* Automatic VIP role assignment based on total customer spending.
+* Configurable VIP role name and optional role slug override.
+* Visual progress bar in the My Account area using standard WooCommerce colors.
+* Native settings page integrated into WooCommerce.
+* Multisite compatible (per-site roles and settings).
+* Translation ready.
+
+= Technical Standards =
+
+* Fully compliant with WordPress Coding Standards (WPCS).
+* Optimized for PHP 8.2+ with strict typing and property types.
+* Security hardened with late-escaping and nonce verification.
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/`
-2. Activate "WC VIP Club" from the Plugins screen
-3. Go to WooCommerce > Settings > VIP Club
-4. Configure the VIP role name, threshold, and optional role slug
-
-The plugin is now active.
+1. Upload the plugin folder to the `/wp-content/plugins/` directory.
+2. Activate "WC VIP Club" through the 'Plugins' menu in WordPress.
+3. Configure your settings under WooCommerce > Settings > VIP Club.
 
 == Frequently Asked Questions ==
 
 = Does this plugin replace the Customer role? =
 
-No. The VIP role is added to the user. Existing roles are not removed.
+No. The VIP role is added to the user's existing roles.
 
 = Can VIP users be downgraded automatically? =
 
-No. VIP status is permanent by default. Downgrades can be implemented via hooks if needed.
+No. VIP status is permanent by default to ensure customer satisfaction. Downgrades can be implemented via developer hooks if needed.
 
-= Can the plugin be used without Woo? =
+= Can the plugin be used without WooCommerce? =
 
-No. The plugin relies on Woo order data.
+No. The plugin relies on WooCommerce order data and hooks.
 
 == Screenshots ==
 
-1. WC VIP Club settings page
-2. Customer progress bar in My Account
-3. VIP status confirmation message
+1. WC VIP Club settings page showing threshold configuration.
+2. Customer progress bar and star icons in the My Account dashboard.
+3. VIP status confirmation message for achieved goals.
 
 == Changelog ==
 
+= 1.2.0 =
+* Enhancement: Full refactor for WordPress Coding Standards (WPCS) compliance.
+* Update: Added PHP 8.2 strict typing and return type hints.
+* Improvement: Enhanced My Account tab reordering and documentation.
+
+= 1.1.0 =
+* Added support for role slug overrides.
+* Initial My Account tab logic.
+
 = 1.0.0 =
-* Initial release
+* Initial release.
 
 == Upgrade Notice ==
 
-= 1.0.0 =
-Initial release. No upgrade required.
+= 1.2.0 =
+This version improves security and performance for PHP 8.2 environments. Highly recommended for all users.
 
-== Configuration ==
+== Developer Hooks ==
 
-**VIP Role Name**
-Defines the display name of the VIP role (for example "VIP Customer" or "Gold Member").
+= Filters =
+* `vip_club_role_name` - Modify the display name of the VIP role.
+* `vip_club_role_slug` - Modify the slug used for the role.
+* `vip_club_threshold` - Dynamically change the spending threshold.
 
-**Advanced Role Slug Override**
-Optional. If provided, this value will be used internally instead of automatically generating the slug from the role name. This is recommended for developers who want stable role identifiers.
+= Actions =
+* `vip_club_role_synced` - Fires after the VIP role is updated in the database.
+* `vip_club_customer_promoted` - Fires when a customer is upgraded to VIP.
 
-**Spending Threshold**
-The total lifetime amount a customer must spend to become a VIP.
-
-**Customer Experience**
-
-Customers will see a "VIP Club" tab in:
-
-My Account > VIP Club
-
-The page shows:
-* Current progress toward VIP status
-* Remaining amount needed to reach VIP
-* Confirmation message once VIP status is achieved
-
-**How VIP Status Is Assigned**
-
-A customer is upgraded to VIP when:
-* An order reaches the "Processing" or "Completed" status
-* Total lifetime spending meets or exceeds the configured threshold
-* The customer does not already have the VIP role
-
-VIP status is not removed automatically.
-
-== Hooks and Filters ==
-
-**Filters available:**
-
-`vip_club_role_name`
-`vip_club_role_slug` 
-`vip_club_threshold`
-`vip_club_is_user_vip`
-`vip_club_should_upgrade_user`
-
-**Actions available:**
-
-`vip_club_user_upgraded`
-`vip_club_role_synced`
-
-**Example: Prevent VIP upgrade for a specific user role**
-
+= Code Example: Prevent upgrade for specific roles =
 `
 add_filter( 'vip_club_should_upgrade_user', function ( $allow, $user ) {
-    return ! in_array( 'blocked_vip', $user->roles, true );
+    return ! in_array( 'blocked_role', (array) $user->roles, true );
 }, 10, 2 );
 `
 
 == Multisite Support ==
 
-The plugin is fully compatible with WordPress Multisite.
-
-* VIP roles are created per site
-* Settings are stored per site
-* Safe for network activation
-* No network-wide role pollution
-
-== Translations ==
-
-The plugin is fully translation-ready.
-
-Text domain: `wc-vip-club`
-
-== Roadmap ==
-
-* Email notifications
-* REST API support
-PRO VERSION ADD-ON including
-* VIP tiers (Silver, Gold, Platinum)
-* Time-limited VIP memberships
-
-== Contributing ==
-
-Contributions, bug reports, and feature requests are welcome.
-Please open an issue to discuss major changes before submitting a pull request.
-
-== Credits ==
-
-Developed for Woo store owners and developers.
+The plugin is fully compatible with WordPress Multisite. VIP roles and settings are handled per-site to prevent network-wide role pollution.

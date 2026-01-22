@@ -3,7 +3,7 @@
  * Plugin Name:       WC VIP Club
  * Plugin URI:        https://elica-webservices.it
  * Description:       Automatically upgrades customers to VIP roles based on lifetime spending in WooCommerce. VIP role is a clone of customer role, customizable via role editors, email campaigns, and pricing rules.
- * Version:           1.1.0
+ * Version:           1.2.0
  * Author:            Elisabetta Carrara
  * Author URI:        https://elica-webservices.it
  * Text Domain:       wc-vip-club
@@ -36,7 +36,7 @@ add_action(
  * Plugin constants.
  * These are used throughout the plugin to locate files and version assets.
  */
-define( 'WC_VIP_CLUB_VERSION', '1.1.0' );
+define( 'WC_VIP_CLUB_VERSION', '1.2.0' );
 define( 'WC_VIP_CLUB_PLUGIN_FILE', __FILE__ );
 define( 'WC_VIP_CLUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_VIP_CLUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

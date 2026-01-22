@@ -1,4 +1,4 @@
-name: Coding Standards + Auto-Fix
+name: WPCS + CPCS + Auto-Fix
 
 on: [push, pull_request]
 
@@ -16,42 +16,59 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: WPCS + CPCS Lint & JSON
+      # WPCS (VIP-safe)
+      - name: WPCS Lint & JSON
         uses: 10up/wpcs-action@v1.7.0
         with:
           standard: WordPress-VIP-Go
-          extra_args: '--report-json=./phpcs.json --extensions=php'
+          extra_args: '--report-json=./wpcs.json --extensions=php'
           enable_warnings: true
 
-            - name: Summary
+      # CPCS (custom config)
+      - name: CPCS Config & Lint
+        run: |
+          wget -O phpcs.xml https://raw.githubusercontent.com/ClassicPress/ClassicPress-Coding-Standards/main/phpcs.xml
+          sed -i '/^\t<!-- start config -->/a <file>.</file>' phpcs.xml
+          sed -i 's/MY_DOMAIN/wc-vip-club/g' phpcs.xml
+        continue-on-error: true
+      - name: CPCS Lint JSON
+        uses: 10up/wpcs-action@v1.7.0
+        with:
+          use_local_config: true
+          extra_args: '--report-json=./cpcs.json --extensions=php'
+          enable_warnings: true
+
+      # Combined Summary
+      - name: Summary
         if: always()
         run: |
-          npm install ./  # Local install, no global perms
           npm i -g https://github.com/10up/phpcs-json-to-md/tarball/master || true
-          [ -f ./phpcs.json ] || echo '{}' > ./phpcs.json
-          npx phpcs-json-to-md --path ./phpcs.json --output ./phpcs.md || echo "## No issues" > ./phpcs.md
-          cat ./phpcs.md >> $GITHUB_STEP_SUMMARY
-        shell: bash
+          [ -f ./wpcs.json ] || echo '{}' > ./wpcs.json
+          [ -f ./cpcs.json ] || echo '{}' > ./cpcs.json
+          phpcs-json-to-md --path ./wpcs.json --output ./wpcs.md || echo "## WPCS: No issues" > ./wpcs.md
+          phpcs-json-to-md --path ./cpcs.json --output ./cpcs.md || echo "## CPCS: No issues" > ./cpcs.md
+          echo '## WPCS Results' >> $GITHUB_STEP_SUMMARY
+          cat ./wpcs.md >> $GITHUB_STEP_SUMMARY
+          echo '## CPCS Results' >> $GITHUB_STEP_SUMMARY
+          cat ./cpcs.md >> $GITHUB_STEP_SUMMARY
 
-      - name: Setup PHP for PHPCBF
+      # PHPCBF Auto-Fix (Core WP + CPCS)
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
 
-      - name: Install PHPCBF
+      - name: PHPCBF WPCS
         run: |
-          curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
-          chmod +x phpcs.phar
-          mv phpcs.phar /usr/local/bin/phpcs
           curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar
           chmod +x phpcbf.phar
-          mv phpcbf.phar /usr/local/bin/phpcbf
+          ./phpcbf.phar . --standard=WordPress --extensions=php --ignore=vendor/,node_modules/
 
-      - name: PHPCBF Auto-Fix
-        run: phpcbf . --standard=WordPress-VIP-Go --extensions=php --ignore=vendor/,node_modules/
+      - name: PHPCBF CPCS
+        run: ./phpcbf.phar . --standard=phpcs.xml --extensions=php --ignore=vendor/,node_modules/
 
       - name: Commit Fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'fix: PHPCBF VIP/WPCS [skip ci]'
+          commit_message: 'fix: PHPCBF WPCS/CPCS [skip ci]'
           file_pattern: '*.php'

@@ -1,18 +1,14 @@
 name: PHP Autofix (PHPCBF)
-run: vendor/bin/phpcbf ./ --standard=phpcs.xml.dist || true
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   phpcbf:
-    name: PHPCBF
     runs-on: ubuntu-latest
 
     permissions:
@@ -43,9 +39,9 @@ jobs:
             dealerdirect/phpcodesniffer-composer-installer
 
       - name: Run PHPCBF (autofix)
-        run: vendor/bin/phpcbf || true
+        run: vendor/bin/phpcbf ./ --standard=phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/* || true
 
-      - name: Commit fixes to PR
+      - name: Commit fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: PHPCBF auto-fixes"

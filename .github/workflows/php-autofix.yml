@@ -26,6 +26,9 @@ jobs:
           php-version: '8.2'
           tools: composer
 
+      - name: Allow PHPCS Composer plugin
+        run: composer config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+
       - name: Install PHPCS + sniffs
         run: |
           composer require --dev \

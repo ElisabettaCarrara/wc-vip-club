@@ -1,14 +1,13 @@
-name: WPCS Check
+name: WPCS (WordPress + WooCommerce)
 
 on:
   pull_request:
     branches:
       - main
-      - '**/*'
 
 jobs:
-  wpcs:
-    name: WPCS
+  phpcs:
+    name: PHPCS
     runs-on: ubuntu-latest
 
     steps:
@@ -19,13 +18,15 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          tools: composer
 
-      - name: Install dependencies
+      - name: Install PHPCS + sniffs
         run: |
-          composer require --dev squizlabs/php_codesniffer wp-coding-standards/wpcs dealerdirect/phpcodesniffer-composer-installer
+          composer require --dev \
+            squizlabs/php_codesniffer \
+            wp-coding-standards/wpcs \
+            woocommerce/woocommerce-sniffs \
+            dealerdirect/phpcodesniffer-composer-installer
 
-      - name: Configure PHPCS WordPress standards
-        run: vendor/bin/phpcs --config-set installed_paths vendor/wp-coding-standards/wpcs
-
-      - name: Run WPCS
-        run: vendor/bin/phpcs --standard=WordPress-VIP-Go .
+      - name: Run PHPCS
+        run: vendor/bin/phpcs

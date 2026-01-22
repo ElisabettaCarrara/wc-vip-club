@@ -70,14 +70,14 @@ class WC_VIP_Club {
 		 * @since 1.0.0
 		 */
 		add_filter( 'woocommerce_settings_tabs_array', array( $this, 'add_settings_tab' ), 50 );
-		
+
 		/**
 		 * Renders the VIP Club settings tab content.
 		 *
 		 * @since 1.0.0
 		 */
 		add_action( 'woocommerce_settings_vip_club', array( $this, 'render_settings_tab' ) );
-		
+
 		/**
 		 * Saves the VIP Club settings when the form is submitted.
 		 *
@@ -93,7 +93,7 @@ class WC_VIP_Club {
 		 * @since 1.0.0
 		 */
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'add_account_tab' ), 10 );
-		
+
 		/**
 		 * Renders the VIP Club tab content in My Account.
 		 *

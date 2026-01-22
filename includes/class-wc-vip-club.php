@@ -70,7 +70,19 @@ class WC_VIP_Club {
 		 * @since 1.0.0
 		 */
 		add_filter( 'woocommerce_settings_tabs_array', array( $this, 'add_settings_tab' ), 50 );
+		
+		/**
+		 * Renders the VIP Club settings tab content.
+		 *
+		 * @since 1.0.0
+		 */
 		add_action( 'woocommerce_settings_vip_club', array( $this, 'render_settings_tab' ) );
+		
+		/**
+		 * Saves the VIP Club settings when the form is submitted.
+		 *
+		 * @since 1.0.0
+		 */
 		add_action( 'woocommerce_update_options_vip_club', array( $this, 'save_settings' ) );
 		add_action( 'admin_notices', array( $this, 'settings_preview_notice' ) );
 
@@ -81,6 +93,12 @@ class WC_VIP_Club {
 		 * @since 1.0.0
 		 */
 		add_filter( 'woocommerce_account_menu_items', array( $this, 'add_account_tab' ), 10 );
+		
+		/**
+		 * Renders the VIP Club tab content in My Account.
+		 *
+		 * @since 1.0.0
+		 */
 		add_action( 'woocommerce_account_vip_club_endpoint', array( $this, 'render_account_tab' ) );
 
 		// Promotion logic.
@@ -260,7 +278,7 @@ class WC_VIP_Club {
 	 * Show admin notice for VIP Club settings preview.
 	 */
 	public function settings_preview_notice(): void {
-		// Nonce is not required for read-only display of settings.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display, no data processing.
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
@@ -301,7 +319,7 @@ class WC_VIP_Club {
 
 		$reordered = array( 'vip_club' => $vip_label );
 		foreach ( $items as $key => $label ) {
-			if ( $key !== 'vip_club' ) {
+			if ( 'vip_club' !== $key ) {
 				$reordered[ $key ] = $label;
 			}
 		}
@@ -384,8 +402,8 @@ class WC_VIP_Club {
 		if ( ! $is_vip && $threshold > $total ) {
 			$remaining = $threshold - $total;
 			echo '<p style="margin-top:1rem;font-style:italic;">';
+			/* translators: 1: Remaining amount, 2: Role name. */
 			printf(
-				/* translators: 1: Remaining amount, 2: Role name. */
 				esc_html__( 'You are only %1$s away from unlocking your %2$s status! Keep going!', 'wc-vip-club' ),
 				'<strong>' . wp_kses_post( wc_price( $remaining ) ) . '</strong>',
 				esc_html( $role_name )

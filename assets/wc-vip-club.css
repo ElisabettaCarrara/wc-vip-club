@@ -46,3 +46,63 @@
 	font-size: 0.875rem;
 	color: var(--wc-secondary-text, #555);
 }
+
+/* =========================
+ * VIP star icon
+ * ========================= */
+
+.wc-vip-club-star {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	margin-right: 0.35em;
+
+	vertical-align: middle;
+	line-height: 1;
+	font-size: 1.1em;
+
+	/* Woo-style neutral baseline */
+	color: #c3c4c7;
+}
+
+/* Base star glyph */
+.wc-vip-club-star::before {
+	content: "★";
+	display: block;
+	line-height: 1;
+}
+
+/* Empty star (not yet VIP) */
+.wc-vip-club-star-empty::before {
+	color: #dcdcde; /* WP/Woo muted grey */
+}
+
+/* Half star (progressing) */
+.wc-vip-club-star-half::before {
+	background: linear-gradient(
+		90deg,
+		#f7b500 50%,
+		#dcdcde 50%
+	);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+	color: transparent;
+}
+
+/* Full star (VIP achieved) */
+.wc-vip-club-star-full::before {
+	color: #f7b500; /* WooCommerce gold */
+}
+
+/* Slight emphasis when shown in headings */
+.wc-vip-wrapper h2 .wc-vip-club-star {
+	font-size: 1.2em;
+	position: relative;
+	top: -0.05em;
+}
+
+/* Success / VIP context */
+.wc-vip-success .wc-vip-club-star-full::before {
+	filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.08));
+}

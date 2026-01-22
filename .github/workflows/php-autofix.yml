@@ -1,4 +1,5 @@
 name: PHP Autofix (PHPCBF)
+run: vendor/bin/phpcbf ./ --standard=phpcs.xml.dist || true
 
 on:
   push:

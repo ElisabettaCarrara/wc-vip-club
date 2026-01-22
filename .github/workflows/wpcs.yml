@@ -2,16 +2,13 @@ name: WPCS (WordPress + WooCommerce)
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
   phpcs:
-    name: PHPCS
     runs-on: ubuntu-latest
 
     steps:
@@ -35,5 +32,5 @@ jobs:
             woocommerce/woocommerce-sniffs \
             dealerdirect/phpcodesniffer-composer-installer
 
-      - name: Run PHPCS
-        run: vendor/bin/phpcs
+      - name: Run PHPCS (lint)
+        run: vendor/bin/phpcs ./ --standard=phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/*

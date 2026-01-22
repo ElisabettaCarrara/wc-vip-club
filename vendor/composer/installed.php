@@ -3,7 +3,7 @@
         'name' => 'elisabettacarrara/wc-vip-club',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'b5048aac847d9b0f01e78de2f05d0308ebaacb1b',
+        'reference' => '77d1f72a8a92f5d84566c2e4d829f52c4ff422d0',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'elisabettacarrara/wc-vip-club' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'b5048aac847d9b0f01e78de2f05d0308ebaacb1b',
+            'reference' => '77d1f72a8a92f5d84566c2e4d829f52c4ff422d0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

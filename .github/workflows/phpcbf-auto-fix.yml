@@ -1,41 +1,35 @@
-name: Auto-fix WPCS & CPCS with PHPCBF (WPCS Priority)
+name: Auto-fix WPCS & CPCS (WP Plugin)
 
 on:
-  workflow_run:
-    workflows: ["ClassicPress Directory Coding Standard checks.", "WPCS checks"]  # Update with your exact names
-    types: [completed]
+  push:
+    branches: [ main, develop ]
   pull_request:
+  workflow_run:
+    workflows: ["ClassicPress checks", "WPCS checks"]  # Your check workflows
+    types: [completed]
 
 jobs:
-  auto-fix:
-    # Runs only if checks failed
-    if: ${{ github.event.workflow_run.conclusion == 'failure' || github.event_name == 'pull_request' }}
+  phpcbf:
+    name: PHPCBF Auto-fix
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
+    if: failure() || github.event_name == 'pull_request'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          ref: ${{ github.head_ref }}
 
-      - name: PHPCBF WPCS-VIP (Priority for Woo)
-        uses: 10up/wpcs-action@v1.7.0
+      - name: PHPCS/PHPCBF WPCS + CPCS
+        uses: shalior/wordpress-phpcs-action@master
         with:
-          standard: WordPress-VIP-Go
-          phpcbf: true
+          github_token: ${{ github.token }}
+          phpcs_standard: WordPress,ClassicPress  # Both standards
+          phpcs_args: '--ignore=*/vendor/*,*/node_modules/*'
+          phpcbf_args: '--ignore=*/vendor/*,*/node_modules/*'
 
-      - name: PHPCBF CPCS
-        uses: 10up/wpcs-action@v1.7.0
-        with:
-          standard_repo: https://github.com/ClassicPress/ClassicPress-Coding-Standards
-          phpcbf: true
-          extra_args: '--runtime-set ignore_warnings_on_exit 1'
-
-      - name: Commit fixes if any
+      - name: Commit fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'fix: auto PHPCBF WPCS-VIP (priority) & CPCS'
+          commit_message: 'fix: PHPCBF WPCS/CPCS auto-fixes [skip ci]'
           file_pattern: '*.php'

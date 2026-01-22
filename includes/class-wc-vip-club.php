@@ -261,5 +261,3 @@ class WC_VIP_Club {
 		}
 	}
 }
-
-WC_VIP_Club::get_instance();

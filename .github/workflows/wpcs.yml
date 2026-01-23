@@ -35,4 +35,4 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: Run PHPCS (lint)
-        run: vendor/bin/phpcs ./ --standard=phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*
+        run: vendor/bin/phpcs ./ --standard=.phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*

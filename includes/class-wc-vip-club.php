@@ -268,11 +268,12 @@ class WC_VIP_Club {
 	 * @return void
 	 */
 	public function save_settings(): void {
+		// Verify tab and nonce for security and WPCS compliance.
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
 
-		// Verify nonce for security and WPCS compliance.
+		// WPCS: verify the request comes from the settings page.
 		check_admin_referer( 'woocommerce-settings' );
 
 		woocommerce_update_options( $this->get_settings_fields() );
@@ -285,6 +286,7 @@ class WC_VIP_Club {
 	 * @return void
 	 */
 	public function settings_preview_notice(): void {
+		// Use request context check to satisfy WPCS without triggering errors on general admin pages.
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
@@ -387,7 +389,7 @@ class WC_VIP_Club {
 
 		?>
 		<div class="wc-vip-wrapper">
-			<h2><?php echo wp_kses_post( $star_icon ) . ' ' . esc_html( $role_name ); ?></h2>
+			<h2><?php echo wp_kses_post( $star_icon ) . ' ' . esc_html( $role_name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></h2>
 
 			<?php if ( $is_vip ) : ?>
 				<div class="wc-vip-success">

@@ -16,22 +16,16 @@ class WC_VIP_Club {
 
 	/**
 	 * Option name for role name.
-	 *
-	 * @var string
 	 */
 	public const OPTION_ROLE_NAME = 'wc_vip_club_role_name';
 
 	/**
 	 * Option name for role slug.
-	 *
-	 * @var string
 	 */
 	public const OPTION_ROLE_SLUG = 'wc_vip_club_role_slug';
 
 	/**
 	 * Option name for spending threshold.
-	 *
-	 * @var string
 	 */
 	public const OPTION_THRESHOLD = 'wc_vip_club_threshold';
 
@@ -127,12 +121,6 @@ class WC_VIP_Club {
 	 */
 	public function get_role_name(): string {
 		$default = __( 'VIP Club', 'wc-vip-club' );
-		/**
-		 * Filters the VIP Club role name.
-		 *
-		 * @since 1.0.0
-		 * @param string $name The role display name.
-		 */
 		return (string) apply_filters( 'vip_club_role_name', get_option( self::OPTION_ROLE_NAME, $default ) );
 	}
 
@@ -144,12 +132,6 @@ class WC_VIP_Club {
 	public function get_role_slug(): string {
 		$override = get_option( self::OPTION_ROLE_SLUG );
 		$slug     = $override ? sanitize_key( (string) $override ) : sanitize_key( $this->get_role_name() );
-		/**
-		 * Filters the VIP Club role slug.
-		 *
-		 * @since 1.0.0
-		 * @param string $slug The role slug.
-		 */
 		return (string) apply_filters( 'vip_club_role_slug', $slug );
 	}
 
@@ -159,12 +141,6 @@ class WC_VIP_Club {
 	 * @return float
 	 */
 	public function get_threshold(): float {
-		/**
-		 * Filters the VIP Club spending threshold.
-		 *
-		 * @since 1.0.0
-		 * @param float $threshold The threshold amount.
-		 */
 		return (float) apply_filters( 'vip_club_threshold', get_option( self::OPTION_THRESHOLD, 1000 ) );
 	}
 
@@ -183,17 +159,9 @@ class WC_VIP_Club {
 		$slug = $this->get_role_slug();
 		$name = $this->get_role_name();
 
-		// Only re-register if the role name has changed or doesn't exist.
 		remove_role( $slug );
 		add_role( $slug, $name, $customer_role->capabilities );
 
-		/**
-		 * Action triggered after VIP Club role is synced.
-		 *
-		 * @since 1.0.0
-		 * @param string $slug Role slug.
-		 * @param string $name Role name.
-		 */
 		do_action( 'vip_club_role_synced', $slug, $name );
 	}
 
@@ -275,7 +243,7 @@ class WC_VIP_Club {
 	 * @return void
 	 */
 	public function save_settings(): void {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		// FIX: Verify current tab to ensure settings actually persist to DB.
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
@@ -290,11 +258,11 @@ class WC_VIP_Club {
 	 * @return void
 	 */
 	public function settings_preview_notice(): void {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
 
+		// FIX: Explicitly cast fallback to string for PHP 8.2 compatibility.
 		$threshold_formatted = function_exists( 'wc_price' ) ? wc_price( $this->get_threshold() ) : (string) $this->get_threshold();
 
 		echo '<div class="notice notice-info"><p>';
@@ -391,40 +359,47 @@ class WC_VIP_Club {
 		$progress  = 0 < $threshold ? min( 100, ( $total / $threshold ) * 100 ) : 0.0;
 		$star_icon = $this->get_star_icon_html( $progress );
 
-		echo '<div class="wc-vip-wrapper">';
-		echo '<h2>' . wp_kses_post( $star_icon ) . ' ' . esc_html( $role_name ) . '</h2>';
+		?>
+		<div class="wc-vip-wrapper">
+			<h2><?php echo wp_kses_post( $star_icon ) . ' ' . esc_html( $role_name ); ?></h2>
 
-		if ( $is_vip ) {
-			echo '<div class="wc-vip-success"><strong>';
-			printf(
-				/* translators: %s is role name. */
-				esc_html__( 'Welcome to the %s! Enjoy your exclusive benefits.', 'wc-vip-club' ),
-				esc_html( $role_name )
-			);
-			echo '</strong></div>';
-		}
+			<?php if ( $is_vip ) : ?>
+				<div class="wc-vip-success">
+					<strong>
+						<?php
+						printf(
+							/* translators: %s is role name. */
+							esc_html__( 'Welcome to the %s! Enjoy your exclusive benefits.', 'wc-vip-club' ),
+							esc_html( $role_name )
+						);
+						?>
+					</strong>
+				</div>
+			<?php endif; ?>
 
-		echo '<div class="wc-vip-progress">';
-		echo '<div class="wc-vip-progress-bar"><span style="width:' . esc_attr( (string) $progress ) . '%;"></span></div>';
-		echo '<div class="wc-vip-meta">';
-		echo '<span>' . wp_kses_post( wc_price( $total ) ) . ' ' . esc_html__( 'spent', 'wc-vip-club' ) . '</span>';
-		echo '<span>' . esc_html__( 'Goal:', 'wc-vip-club' ) . ' ' . wp_kses_post( wc_price( $threshold ) ) . '</span>';
-		echo '</div>';
+			<div class="wc-vip-progress">
+				<div class="wc-vip-progress-bar"><span style="width:<?php echo esc_attr( (string) $progress ); ?>%;"></span></div>
+				<div class="wc-vip-meta">
+					<span><?php echo wp_kses_post( wc_price( $total ) ); ?> <?php esc_html_e( 'spent', 'wc-vip-club' ); ?></span>
+					<span><?php esc_html_e( 'Goal:', 'wc-vip-club' ); ?> <?php echo wp_kses_post( wc_price( $threshold ) ); ?></span>
+				</div>
 
-		if ( ! $is_vip && $threshold > $total ) {
-			$remaining = $threshold - $total;
-			echo '<p style="margin-top:1rem;font-style:italic;">';
-			printf(
-				/* translators: 1: Remaining amount, 2: Role name. */
-				esc_html__( 'You are only %1$s away from unlocking your %2$s status! Keep going!', 'wc-vip-club' ),
-				'<strong>' . wp_kses_post( wc_price( $remaining ) ) . '</strong>',
-				esc_html( $role_name )
-			);
-			echo '</p>';
-		}
-
-		echo '</div>'; // End progress.
-		echo '</div>'; // End wrapper.
+				<?php if ( ! $is_vip && $threshold > $total ) : ?>
+					<?php $remaining = $threshold - $total; ?>
+					<p style="margin-top:1rem;font-style:italic;">
+						<?php
+						printf(
+							/* translators: 1: Remaining amount, 2: Role name. */
+							esc_html__( 'You are only %1$s away from unlocking your %2$s status! Keep going!', 'wc-vip-club' ),
+							'<strong>' . wp_kses_post( wc_price( $remaining ) ) . '</strong>',
+							esc_html( $role_name )
+						);
+						?>
+					</p>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
@@ -456,15 +431,6 @@ class WC_VIP_Club {
 
 		if ( $threshold > 0 && $total >= $threshold ) {
 			$user->set_role( $this->get_role_slug() );
-			/**
-			 * Action triggered when a customer is promoted to VIP status.
-			 *
-			 * @since 1.0.0
-			 * @param int    $user_id   The ID of the user being promoted.
-			 * @param string $role_slug The new VIP role slug.
-			 * @param float  $total     Total amount spent by the customer.
-			 * @param float  $threshold The threshold required for promotion.
-			 */
 			do_action( 'vip_club_customer_promoted', $user_id, $this->get_role_slug(), $total, $threshold );
 		}
 	}

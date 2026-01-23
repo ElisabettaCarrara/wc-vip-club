@@ -121,6 +121,12 @@ class WC_VIP_Club {
 	 */
 	public function get_role_name(): string {
 		$default = __( 'VIP Club', 'wc-vip-club' );
+		/**
+		 * Filter the VIP Club role name.
+		 *
+		 * @since 1.0.0
+		 * @param string $default The default role name.
+		 */
 		return (string) apply_filters( 'vip_club_role_name', get_option( self::OPTION_ROLE_NAME, $default ) );
 	}
 
@@ -132,6 +138,12 @@ class WC_VIP_Club {
 	public function get_role_slug(): string {
 		$override = get_option( self::OPTION_ROLE_SLUG );
 		$slug     = $override ? sanitize_key( (string) $override ) : sanitize_key( $this->get_role_name() );
+		/**
+		 * Filter the VIP Club role slug.
+		 *
+		 * @since 1.0.0
+		 * @param string $slug The generated or overridden slug.
+		 */
 		return (string) apply_filters( 'vip_club_role_slug', $slug );
 	}
 
@@ -141,6 +153,12 @@ class WC_VIP_Club {
 	 * @return float
 	 */
 	public function get_threshold(): float {
+		/**
+		 * Filter the VIP Club spending threshold.
+		 *
+		 * @since 1.0.0
+		 * @param mixed $threshold The threshold value from options.
+		 */
 		return (float) apply_filters( 'vip_club_threshold', get_option( self::OPTION_THRESHOLD, 1000 ) );
 	}
 
@@ -162,6 +180,13 @@ class WC_VIP_Club {
 		remove_role( $slug );
 		add_role( $slug, $name, $customer_role->capabilities );
 
+		/**
+		 * Fires after the VIP Club role has been synced.
+		 *
+		 * @since 1.0.0
+		 * @param string $slug The role slug.
+		 * @param string $name The role name.
+		 */
 		do_action( 'vip_club_role_synced', $slug, $name );
 	}
 
@@ -243,10 +268,12 @@ class WC_VIP_Club {
 	 * @return void
 	 */
 	public function save_settings(): void {
-		// FIX: Verify current tab to ensure settings actually persist to DB.
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
+
+		// Verify nonce for security and WPCS compliance.
+		check_admin_referer( 'woocommerce-settings' );
 
 		woocommerce_update_options( $this->get_settings_fields() );
 		$this->sync_vip_role();
@@ -262,7 +289,6 @@ class WC_VIP_Club {
 			return;
 		}
 
-		// FIX: Explicitly cast fallback to string for PHP 8.2 compatibility.
 		$threshold_formatted = function_exists( 'wc_price' ) ? wc_price( $this->get_threshold() ) : (string) $this->get_threshold();
 
 		echo '<div class="notice notice-info"><p>';
@@ -431,6 +457,15 @@ class WC_VIP_Club {
 
 		if ( $threshold > 0 && $total >= $threshold ) {
 			$user->set_role( $this->get_role_slug() );
+			/**
+			 * Fires after a customer has been promoted to VIP.
+			 *
+			 * @since 1.0.0
+			 * @param int    $user_id   The customer's user ID.
+			 * @param string $role_slug The assigned VIP role slug.
+			 * @param float  $total     The total amount spent.
+			 * @param float  $threshold The threshold required.
+			 */
 			do_action( 'vip_club_customer_promoted', $user_id, $this->get_role_slug(), $total, $threshold );
 		}
 	}

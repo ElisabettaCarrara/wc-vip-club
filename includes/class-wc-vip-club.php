@@ -268,16 +268,10 @@ class WC_VIP_Club {
 	 * @return void
 	 */
 	public function save_settings(): void {
-		// Verify nonce for security and WPCS compliance.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'woocommerce-settings' ) ) {
-			wp_die( esc_html__( 'Security check failed. Please try again.', 'wc-vip-club' ) );
-		}
-
-		// Verify we're on the correct settings tab.
-		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
-			return;
-		}
-
+		// WooCommerce handles nonce verification internally via woocommerce_update_options.
+		// The action 'woocommerce_update_options_vip_club' is only fired after WooCommerce
+		// has already verified the nonce, so we don't need to verify it again here.
+		
 		woocommerce_update_options( $this->get_settings_fields() );
 		$this->sync_vip_role();
 	}

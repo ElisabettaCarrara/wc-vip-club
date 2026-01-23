@@ -268,13 +268,15 @@ class WC_VIP_Club {
 	 * @return void
 	 */
 	public function save_settings(): void {
-		// Verify tab and nonce for security and WPCS compliance.
+		// Verify nonce for security and WPCS compliance.
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'woocommerce-settings' ) ) {
+			wp_die( esc_html__( 'Security check failed. Please try again.', 'wc-vip-club' ) );
+		}
+
+		// Verify we're on the correct settings tab.
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
 			return;
 		}
-
-		// WPCS: verify the request comes from the settings page.
-		check_admin_referer( 'woocommerce-settings' );
 
 		woocommerce_update_options( $this->get_settings_fields() );
 		$this->sync_vip_role();
@@ -286,8 +288,17 @@ class WC_VIP_Club {
 	 * @return void
 	 */
 	public function settings_preview_notice(): void {
-		// Use request context check to satisfy WPCS without triggering errors on general admin pages.
+		// Verify nonce when displaying settings-specific notices.
+		if ( ! isset( $_GET['page'] ) || 'wc-settings' !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
+			return;
+		}
+
 		if ( ! isset( $_GET['tab'] ) || 'vip_club' !== sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) {
+			return;
+		}
+
+		// For GET requests on settings page, verify the settings nonce if available.
+		if ( isset( $_GET['_wpnonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'woocommerce-settings' ) ) {
 			return;
 		}
 

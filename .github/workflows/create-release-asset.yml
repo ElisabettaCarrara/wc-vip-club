@@ -12,15 +12,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Respects .gitattributes automatically
+      # Generate the plugin zip using 10up's action
       - name: Build Project Zip
-        uses: thelinuxguy/wp-release-action@v3
-        with:
-          filename: wc-vip-club-${{ github.ref_name }}.zip
+        uses: 10up/action-wordpress-plugin-build-zip@stable
+        env:
+          SLUG: wc-vip-club
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+      # Download the artifact that was created
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
-          files: wc-vip-club-${{ github.ref_name }}.zip
+          name: wc-vip-club
+
+      # Create GitHub Release and upload the zip
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: wc-vip-club.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

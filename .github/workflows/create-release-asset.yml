@@ -1,0 +1,26 @@
+name: Generate Clean Release Zip
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers when you push a tag like v1.2.0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Respects .gitattributes automatically
+      - name: Build Project Zip
+        uses: thelinuxguy/wp-release-action@v3
+        with:
+          filename: wc-vip-club-${{ github.ref_name }}.zip
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: wc-vip-club-${{ github.ref_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

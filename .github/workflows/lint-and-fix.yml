@@ -1,4 +1,4 @@
-name: WPCS Lint + Autofix
+name: "WPCS Lint + Autofix"
 
 on:
   push:
@@ -45,7 +45,7 @@ jobs:
             "woocommerce/woocommerce-sniffs" \
             --no-interaction --prefer-dist --no-progress
 
-      # Add global bin to PATH.
+      # Add global bin to PATH
       - name: Setup PATH
         run: |
           echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
@@ -54,7 +54,7 @@ jobs:
       # ------------------------------------
       # 1️⃣ Initial scan
       # ------------------------------------
-      - name: PHPCS – initial scan
+      - name: "PHPCS - initial scan"
         run: |
           phpcs --version
           phpcs ./ \
@@ -66,7 +66,7 @@ jobs:
       # ------------------------------------
       # 2️⃣ Autofix
       # ------------------------------------
-      - name: PHPCBF – autofix
+      - name: "PHPCBF - autofix"
         run: |
           phpcbf ./ \
             --standard=.phpcs.xml.dist \
@@ -85,15 +85,27 @@ jobs:
           file_pattern: "**/*.php"
           push_options: "--force"
 
-   # ... (keep everything above the same until final scan) ...
-
       # ------------------------------------
-      # 4️⃣ Final lint (ALWAYS runs)
+      # 4️⃣ Final lint (ALWAYS runs, verbose)
       # ------------------------------------
-      - name: PHPCS – final scan (fail if errors remain)
+      - name: "PHPCS - final scan (fail if errors remain)"
         run: |
           phpcs ./ \
             --standard=.phpcs.xml.dist \
-            --colors --report=summary \
-            --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
-            || exit 1
+            --colors \
+            --report=full \
+            --report-file=phpcs-report-full.txt \
+            --report-width=120 \
+            --ignore=vendor,node_modules,build,assets,.github,tests,*.log
+
+          echo "::notice title=PHPCS Report::Report saved to phpcs-report-full.txt"
+          cat phpcs-report-full.txt
+
+          ERROR_COUNT=$(grep -c "^.*ERROR.*$" phpcs-report-full.txt || echo "0")
+          
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "::error title=PHPCS Errors::❌ $ERROR_COUNT PHPCS errors remain after PHPCBF!"
+            exit 1
+          fi
+
+          echo "✅ All PHPCS errors fixed!"

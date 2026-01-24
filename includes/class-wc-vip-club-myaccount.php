@@ -104,11 +104,11 @@ final class WC_VIP_Club_MyAccount {
 		// Accessible text-based progress.
 		echo '<div class="wc-vip-progress-text">';
 
-		$progress_color = '#d23f3f'; // red
+		$progress_color = '#d23f3f'; // red.
 		if ( $progress >= 50 && $progress < 100 ) {
-			$progress_color = '#f7b500'; // orange
+			$progress_color = '#f7b500'; // orange.
 		} elseif ( $progress >= 100 ) {
-			$progress_color = '#2ecc71'; // green
+			$progress_color = '#2ecc71'; // green.
 		}
 
 		printf(

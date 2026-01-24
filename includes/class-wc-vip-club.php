@@ -56,7 +56,8 @@ final class WC_VIP_Club {
 	 * Instantiate classes
 	 */
 	private function init_components(): void {
-		$this->admin     = new WC_VIP_Club_Admin();
+		if ( is_admin() ) {
+    	$this->admin = new WC_VIP_Club_Admin();
 		$this->roles     = new WC_VIP_Club_Roles();
 		$this->threshold = new WC_VIP_Club_Threshold();
 		$this->myaccount = new WC_VIP_Club_MyAccount();

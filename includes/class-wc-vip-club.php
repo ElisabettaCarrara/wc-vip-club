@@ -7,21 +7,67 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Main WC VIP Club plugin class.
+ *
+ * Handles initialization, hooks, and component orchestration.
+ */
 final class WC_VIP_Club {
-	
-	public const OPTION_ROLE_NAME = 'wc_vip_club_role_name';
-    public const OPTION_ROLE_SLUG = 'wc_vip_club_role_slug';
-    public const OPTION_THRESHOLD = 'wc_vip_club_threshold';
 
+	/**
+	 * Option name for the VIP role display name.
+	 */
+	public const OPTION_ROLE_NAME = 'wc_vip_club_role_name';
+
+	/**
+	 * Option name for the VIP role slug.
+	 */
+	public const OPTION_ROLE_SLUG = 'wc_vip_club_role_slug';
+
+	/**
+	 * Option name for the VIP threshold amount.
+	 */
+	public const OPTION_THRESHOLD = 'wc_vip_club_threshold';
+
+	/**
+	 * Singleton instance of this class.
+	 *
+	 * @var WC_VIP_Club|null
+	 */
 	private static ?WC_VIP_Club $instance = null;
 
+	/**
+	 * Admin class instance.
+	 *
+	 * @var WC_VIP_Club_Admin|null
+	 */
 	private ?WC_VIP_Club_Admin $admin = null;
+
+	/**
+	 * Roles handler class instance.
+	 *
+	 * @var WC_VIP_Club_Roles|null
+	 */
 	private ?WC_VIP_Club_Roles $roles = null;
+
+	/**
+	 * Threshold handler class instance.
+	 *
+	 * @var WC_VIP_Club_Threshold|null
+	 */
 	private ?WC_VIP_Club_Threshold $threshold = null;
+
+	/**
+	 * My Account tab handler class instance.
+	 *
+	 * @var WC_VIP_Club_MyAccount|null
+	 */
 	private ?WC_VIP_Club_MyAccount $myaccount = null;
 
 	/**
 	 * Singleton access.
+	 *
+	 * @return WC_VIP_Club
 	 */
 	public static function get_instance(): WC_VIP_Club {
 		if ( null === self::$instance ) {
@@ -32,6 +78,8 @@ final class WC_VIP_Club {
 
 	/**
 	 * Constructor.
+	 *
+	 * Private to enforce singleton pattern.
 	 */
 	private function __construct() {
 		$this->load_dependencies();
@@ -40,7 +88,11 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Load plugin textdomain for translations (deferred to init)
+	 * Load plugin textdomain for translations.
+	 *
+	 * Deferred to 'init' action.
+	 *
+	 * @return void
 	 */
 	public function load_textdomain(): void {
 		load_plugin_textdomain(
@@ -51,7 +103,9 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Load all required class files
+	 * Load all required class files.
+	 *
+	 * @return void
 	 */
 	private function load_dependencies(): void {
 		require_once __DIR__ . '/class-wc-vip-club-admin.php';
@@ -61,7 +115,9 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Instantiate classes
+	 * Instantiate component classes.
+	 *
+	 * @return void
 	 */
 	private function init_components(): void {
 		if ( is_admin() ) {
@@ -74,18 +130,22 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Register plugin hooks
+	 * Register plugin hooks.
+	 *
+	 * @return void
 	 */
 	private function register_hooks(): void {
-		// Load translations safely
+		// Load translations safely.
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 
-		// Enqueue frontend assets for My Account page
+		// Enqueue frontend assets for My Account page.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 	}
 
 	/**
-	 * Enqueue frontend CSS for My Account tab only
+	 * Enqueue frontend CSS for My Account tab only.
+	 *
+	 * @return void
 	 */
 	public function enqueue_frontend_assets(): void {
 		if ( is_account_page() ) {

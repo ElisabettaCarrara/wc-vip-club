@@ -1,8 +1,11 @@
 /**
  * WC VIP Club Frontend Styles
+ * Fully aligned with new plugin structure
  */
 
-/* Main Container */
+/* =========================
+ * Main VIP Container
+ * ========================= */
 .wc-vip-wrapper {
 	max-width: 720px;
 	padding: 2rem;
@@ -10,20 +13,28 @@
 	border-radius: 12px;
 	border: 1px solid var(--wc-border-color, #e5e5e5);
 	margin-bottom: 2rem;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-/* Heading & Icon */
-.wc-vip-wrapper h2 {
-	margin-top: 0;
-	margin-bottom: 1.5rem;
-	color: var(--wc-primary, #7f54b3);
+/* Header + Star Icon */
+.wc-vip-status-header {
 	display: flex;
 	align-items: center;
 	font-size: 1.5rem;
+	margin-bottom: 1.5rem;
+	color: var(--wc-primary, #7f54b3);
 }
 
-/* Success / Achievement Box */
+/* Inline Star */
+.wc-vip-status-header .wc-vip-club-star {
+	font-size: 1.2em;
+	margin-right: 0.5em;
+	vertical-align: middle;
+}
+
+/* =========================
+ * Achievement / Success Box
+ * ========================= */
 .wc-vip-success {
 	padding: 1.25rem;
 	background: color-mix(in srgb, var(--wc-primary, #7f54b3) 8%, transparent);
@@ -33,22 +44,24 @@
 	color: var(--wc-primary, #7f54b3);
 }
 
-/* Progress Bar Container */
+/* =========================
+ * Progress Bar Container
+ * ========================= */
 .wc-vip-progress {
 	margin-top: 2rem;
 }
 
-/* The Track */
+/* Track */
 .wc-vip-progress-bar {
 	height: 14px;
 	background: #f0f0f0;
 	border-radius: 10px;
 	overflow: hidden;
 	position: relative;
-	border: 1px solid rgba(0,0,0,0.05);
+	border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* The Fill */
+/* Fill */
 .wc-vip-progress-bar span {
 	display: block;
 	height: 100%;
@@ -60,7 +73,7 @@
 	transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Label/Data row (Spent vs Goal) */
+/* Spent vs Goal Labels */
 .wc-vip-meta {
 	display: flex;
 	justify-content: space-between;
@@ -74,7 +87,7 @@
 	color: var(--wc-primary, #000);
 }
 
-/* Motivational Message */
+/* Motivational / Encouragement Message */
 .wc-vip-motivation {
 	margin-top: 1.25rem;
 	padding-top: 1rem;
@@ -89,32 +102,25 @@
 }
 
 /* =========================
- * VIP Star Icon Logic
+ * VIP Star Icon States
  * ========================= */
-
 .wc-vip-club-star {
 	display: inline-block;
 	width: 1.2em;
 	height: 1.2em;
-	margin-right: 0.5em;
 	vertical-align: middle;
 	line-height: 1;
 }
 
-.wc-vip-club-star::before {
-	content: "★";
-	display: block;
-	line-height: 1;
-	font-size: 1.3em;
-}
-
 /* Empty Star */
 .wc-vip-club-star-empty::before {
+	content: "★";
 	color: #dcdcde;
 }
 
-/* Half Star (Progressing) */
+/* Half Star */
 .wc-vip-club-star-half::before {
+	content: "★";
 	background: linear-gradient(
 		90deg,
 		#f7b500 50%,
@@ -126,19 +132,25 @@
 	color: transparent;
 }
 
-/* Full Star (VIP) */
+/* Full Star */
 .wc-vip-club-star-full::before {
+	content: "★";
 	color: #f7b500;
-	filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
 }
 
-/* Star behavior in the Tab Menu */
-.woocommerce-MyAccount-navigation-link--vip_club .wc-vip-club-star {
+/* =========================
+ * Star in My Account Tab Menu
+ * ========================= */
+.woocommerce-MyAccount-navigation-link--vip_status .wc-vip-club-star {
 	font-size: 0.9em;
 	margin-right: 6px;
+	vertical-align: middle;
 }
 
-/* Mobile Adjustments */
+/* =========================
+ * Mobile Adjustments
+ * ========================= */
 @media (max-width: 480px) {
 	.wc-vip-wrapper {
 		padding: 1.25rem;
@@ -150,7 +162,7 @@
 		text-align: center;
 	}
 
-	.wc-vip-wrapper h2 {
+	.wc-vip-status-header {
 		font-size: 1.25rem;
 	}
 }

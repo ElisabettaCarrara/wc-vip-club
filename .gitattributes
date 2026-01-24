@@ -1,4 +1,4 @@
-# Exclude dev-only files and folders from the release ZIP
+# Dev tools
 .gitignore export-ignore
 .gitattributes export-ignore
 .github/ export-ignore
@@ -6,6 +6,8 @@ vendor/ export-ignore
 images/ export-ignore
 composer.json export-ignore
 composer.lock export-ignore
-.phpcs.xml.dist export-ignore
-.phpcs.xml export-ignore
+.phpcs.xml* export-ignore
+phpcs-report.txt export-ignore
 README.md export-ignore
+tests/ export-ignore
+node_modules/ export-ignore

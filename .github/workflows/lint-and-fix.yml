@@ -10,12 +10,9 @@ on:
 jobs:
   lint-fix-lint:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
       pull-requests: write
-
-    # Skip auto-commits.
     if: "!contains(github.event.head_commit.message, 'PHPCBF auto-fixes')"
 
     steps:
@@ -31,39 +28,35 @@ jobs:
         with:
           php-version: '8.2'
 
-      # Cache *only* Composer cache dir (not vendor).
-      - name: Cache Composer
+      - name: Cache Composer global
         uses: actions/cache@v4
         with:
-          path: ~/.composer/cache
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          path: ~/.composer
+          key: ${{ runner.os }}-composer-global-${{ hashFiles('**/composer.lock') }}
 
-      - name: Install stable deps (no dev)
-        run: |
-          composer install --no-interaction --no-dev --prefer-dist --no-progress
-
-      # Install PHPCS globally (no vendor changes!).
+      # ---------------- PHPCS GLOBAL INSTALL ----------------
       - name: Install PHPCS globally
         run: |
+          composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer global config --no-plugins allow-plugins.composer/installers true
           composer global require \
             "squizlabs/php_codesniffer:^3.10" \
             "wp-coding-standards/wpcs:^3.1" \
             "woocommerce/woocommerce-sniffs" \
-            --no-interaction --prefer-dist
+            --no-interaction --prefer-dist --no-progress
 
-      # Copy global phpcs to project (read-only).
-      - name: Setup PHPCS
+      # Add global bin to PATH.
+      - name: Setup PATH
         run: |
-          mkdir -p ~/.local/bin
-          ln -sf ~/.composer/vendor/bin/phpcs ~/.local/bin/phpcs
-          ln -sf ~/.composer/vendor/bin/phpcbf ~/.local/bin/phpcbf
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
+          echo "$HOME/.config/composer/vendor/bin" >> $GITHUB_PATH
 
       # ------------------------------------
       # 1️⃣ Initial scan
       # ------------------------------------
       - name: PHPCS – initial scan
         run: |
+          phpcs --version
           phpcs ./ \
             --standard=.phpcs.xml.dist \
             --colors --report=summary \
@@ -82,7 +75,7 @@ jobs:
             || true
 
       # ------------------------------------
-      # 3️⃣ Commit (only main pushes)
+      # 3️⃣ Commit (main only)
       # ------------------------------------
       - name: Commit auto-fixes
         if: github.ref == 'refs/heads/main'
@@ -90,18 +83,10 @@ jobs:
         with:
           commit_message: "chore: PHPCBF auto-fixes [skip ci]"
           file_pattern: "**/*.php"
-          exclude: |
-            vendor/**
-            node_modules/**
-            .github/**
-            *.lock
-            composer.*
-            *.md
           push_options: "--force"
-          skip_fetch: false
 
       # ------------------------------------
-      # 4️⃣ Final lint (PRs only)
+      # 4️⃣ Final lint (PRs)
       # ------------------------------------
       - name: PHPCS – final scan
         if: github.event_name == 'pull_request'

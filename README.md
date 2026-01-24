@@ -53,6 +53,11 @@ The "magic" happens in the background. When a customer's order is marked as **Pr
 
 *Note: The plugin only upgrades users; it never automatically removes the VIP role if spending decreases (e.g., via refunds), allowing you to handle downgrades manually or via hooks.*
 
+### 4. Screenshots
+
+![Screenshot-1](images/screenshot-1.png)
+![Screenshot-2](images/screenshot-2.png)
+
 ---
 
 ## 🚀 Key Features

@@ -16,20 +16,12 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-/* Header + Star Icon */
+/* Header */
 .wc-vip-status-header {
-	display: flex;
-	align-items: center;
 	font-size: 1.5rem;
 	margin-bottom: 1.5rem;
 	color: var(--wc-primary, #7f54b3);
-}
-
-/* Inline Star */
-.wc-vip-status-header .wc-vip-club-star {
-	font-size: 1.2em;
-	margin-right: 0.5em;
-	vertical-align: middle;
+	font-weight: 600;
 }
 
 /* =========================
@@ -73,53 +65,6 @@
 
 .wc-vip-motivation strong {
 	color: var(--wc-primary, #7f54b3);
-}
-
-/* =========================
- * VIP Star Icon States
- * ========================= */
-.wc-vip-club-star {
-	display: inline-block;
-	width: 1.2em;
-	height: 1.2em;
-	vertical-align: middle;
-	line-height: 1;
-}
-
-/* Empty Star */
-.wc-vip-club-star-empty::before {
-	content: "★";
-	color: #dcdcde;
-}
-
-/* Half Star */
-.wc-vip-club-star-half::before {
-	content: "★";
-	background: linear-gradient(
-		90deg,
-		#f7b500 50%,
-		#dcdcde 50%
-	);
-	-webkit-background-clip: text;
-	background-clip: text;
-	-webkit-text-fill-color: transparent;
-	color: transparent;
-}
-
-/* Full Star */
-.wc-vip-club-star-full::before {
-	content: "★";
-	color: #f7b500;
-	filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
-}
-
-/* =========================
- * Star in My Account Tab Menu
- * ========================= */
-.woocommerce-MyAccount-navigation-link--vip_status .wc-vip-club-star {
-	font-size: 0.9em;
-	margin-right: 6px;
-	vertical-align: middle;
 }
 
 /* =========================

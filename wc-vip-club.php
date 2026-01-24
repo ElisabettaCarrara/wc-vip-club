@@ -1,18 +1,17 @@
 <?php
 /**
- * Plugin Name:       WC VIP Club
- * Plugin URI:        https://elica-webservices.it
- * Description:       Automatically upgrades customers to VIP roles based on lifetime spending in WooCommerce. VIP role is a clone of customer role, customizable via role editors, email campaigns, and pricing rules.
- * Version:           1.2.0
- * Author:            Elisabetta Carrara
- * Author URI:        https://elica-webservices.it
- * Text Domain:       wc-vip-club
- * Domain Path:       /languages
- * Requires at least: 6.0
- * Requires PHP:      8.2
- * Requires Plugins:  woocommerce
- * WC requires at least: 6.0
- * WC tested up to:    9.5
+ * Plugin Name: WC VIP Club
+ * Plugin URI:  https://example.com
+ * Description: Automatically assign customers to a VIP role when a lifetime spending threshold is reached.
+ * Version:     1.2.0
+ * Author:      Your Name
+ * Author URI:  https://example.com
+ * Text Domain: wc-vip-club
+ * Domain Path: /languages
+ * Requires PHP: 8.2
+ * Requires Plugins: woocommerce
+ * WC requires at least: 8.0
+ * WC tested up to: 9.3
  *
  * @package WC_VIP_Club
  */
@@ -20,21 +19,7 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Declare High-Performance Order Storage (HPOS) compatibility.
- * This ensures the plugin works with modern WooCommerce database structures.
- */
-add_action(
-	'before_woocommerce_init',
-	function () {
-		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-		}
-	}
-);
-
-/**
  * Plugin constants.
- * These are used throughout the plugin to locate files and version assets.
  */
 define( 'WC_VIP_CLUB_VERSION', '1.2.0' );
 define( 'WC_VIP_CLUB_PLUGIN_FILE', __FILE__ );
@@ -42,9 +27,25 @@ define( 'WC_VIP_CLUB_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WC_VIP_CLUB_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 /**
- * Check whether WooCommerce is active.
+ * Declare HPOS compatibility.
+ */
+add_action(
+	'before_woocommerce_init',
+	static function (): void {
+		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+				'custom_order_tables',
+				__FILE__,
+				true
+			);
+		}
+	}
+);
+
+/**
+ * Check if WooCommerce is active.
  *
- * @return bool True if WooCommerce is active, false otherwise.
+ * @return bool
  */
 function wc_vip_club_is_woocommerce_active(): bool {
 	if ( ! function_exists( 'is_plugin_active' ) ) {
@@ -56,7 +57,6 @@ function wc_vip_club_is_woocommerce_active(): bool {
 
 /**
  * Plugin activation callback.
- * Ensures requirements are met and registers the My Account rewrite rules.
  *
  * @return void
  */
@@ -66,24 +66,22 @@ function wc_vip_club_activate(): void {
 
 		wp_die(
 			esc_html__(
-				'WC VIP Club cannot be activated because WooCommerce is not active.',
+				'WC VIP Club requires WooCommerce to be installed and active.',
 				'wc-vip-club'
 			),
-			esc_html__( 'Plugin activation error', 'wc-vip-club' ),
+			esc_html__( 'Plugin activation failed', 'wc-vip-club' ),
 			array(
 				'back_link' => true,
 			)
 		);
 	}
 
-	// Flush rewrite rules to register the vip_club endpoint immediately.
 	flush_rewrite_rules();
 }
 register_activation_hook( __FILE__, 'wc_vip_club_activate' );
 
 /**
  * Plugin deactivation callback.
- * Cleans up rewrite rules when the plugin is turned off.
  *
  * @return void
  */
@@ -93,32 +91,56 @@ function wc_vip_club_deactivate(): void {
 register_deactivation_hook( __FILE__, 'wc_vip_club_deactivate' );
 
 /**
- * Bootstrap the plugin.
- * Loads the core logic class once all other plugins are loaded.
+ * Display admin notice if WooCommerce is not active.
+ *
+ * @return void
+ */
+function wc_vip_club_admin_notice_missing_woocommerce(): void {
+	if ( wc_vip_club_is_woocommerce_active() ) {
+		return;
+	}
+
+	echo '<div class="notice notice-error"><p>';
+	echo esc_html__(
+		'WC VIP Club requires WooCommerce to be installed and active.',
+		'wc-vip-club'
+	);
+	echo '</p></div>';
+}
+
+/**
+ * Initialize the plugin.
  *
  * @return void
  */
 function wc_vip_club_init(): void {
-	// Only load if WooCommerce is ready.
 	if ( ! wc_vip_club_is_woocommerce_active() ) {
 		add_action(
 			'admin_notices',
-			function () {
-				echo '<div class="notice notice-error"><p>' . esc_html__( 'WC VIP Club requires WooCommerce to be installed and active.', 'wc-vip-club' ) . '</p></div>';
-			}
+			'wc_vip_club_admin_notice_missing_woocommerce'
 		);
 		return;
 	}
 
 	$class_file = WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club.php';
 
-	if ( file_exists( $class_file ) ) {
-		require_once $class_file;
-
-		// Initialize the main class singleton.
-		if ( class_exists( 'WC_VIP_Club' ) ) {
-			\WC_VIP_Club::get_instance();
+	if ( ! file_exists( $class_file ) ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			trigger_error(
+				esc_html__(
+					'WC VIP Club main class file is missing.',
+					'wc-vip-club'
+				),
+				E_USER_ERROR
+			);
 		}
+		return;
+	}
+
+	require_once $class_file;
+
+	if ( class_exists( 'WC_VIP_Club' ) ) {
+		WC_VIP_Club::get_instance();
 	}
 }
-add_action( 'plugins_loaded', 'wc_vip_club_init' );
+add_action( 'plugins_loaded', 'wc_vip_club_init', 20 );

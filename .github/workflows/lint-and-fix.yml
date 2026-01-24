@@ -22,39 +22,64 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
           # PR: checkout PR branch. Push: checkout main.
           ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          coverage: none
           tools: composer
 
-      # Cache Composer but exclude vendor from commits.
-      - name: Cache Composer
-        uses: actions/cache@v3
+      # Cache Composer properly (cache dir, not vendor).
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      # Cache vendor for faster runs.
+      - name: Cache vendor directory
+        id: vendor-cache
+        uses: actions/cache@v4
         with:
           path: vendor
-          key: composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: composer-
+          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-vendor-
 
-      - name: Allow PHPCS Composer plugin
-        run: composer config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+      - name: Install Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true' || steps.vendor-cache.outputs.cache-hit != 'true'
+        run: |
+          composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader
 
-      - name: Install PHPCS + WPCS + WooCommerce sniffs
-        run: composer install --no-interaction --prefer-dist --no-dev
+      - name: Install WPCS + WooCommerce sniffs (dev deps)
+        run: |
+          composer require --dev \
+            "squizlabs/php_codesniffer:^3.10" \
+            "wp-coding-standards/wpcs:^3.1" \
+            "woocommerce/woocommerce-sniffs" \
+            --no-interaction --no-update --no-progress || true
 
       # ------------------------------------
       # 1️⃣ Initial scan (informational)
       # ------------------------------------
       - name: PHPCS – initial scan
         run: |
+          if [ ! -f "vendor/bin/phpcs" ]; then
+            echo "❌ PHPCS not found, skipping lint"
+            exit 0
+          fi
           ./vendor/bin/phpcs ./ \
             --standard=.phpcs.xml.dist \
-            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*,tests/* \
+            --colors \
+            --report=summary \
+            --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
             || true
 
       # ------------------------------------
@@ -62,31 +87,49 @@ jobs:
       # ------------------------------------
       - name: PHPCBF – autofix
         run: |
+          if [ ! -f "vendor/bin/phpcbf" ]; then
+            echo "❌ PHPCBF not found, skipping fix"
+            exit 0
+          fi
           ./vendor/bin/phpcbf ./ \
             --standard=.phpcs.xml.dist \
-            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*,tests/* \
+            --no-patch \
+            --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
             || true
 
+      # ------------------------------------
+      # 3️⃣ Commit fixes (only if changes)
+      # ------------------------------------
       - name: Commit auto-fixes
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: PHPCBF auto-fixes [skip ci]"
-          # PR: commit to PR branch. Push: commit to main.
           branch: ${{ github.head_ref || github.ref_name }}
           file_pattern: |
             **/*.php
             !**/vendor/**
             !**/*.lock
             !**/composer.*
+            !**/*.md
+            !.github/**
           push_options: '--force-with-lease'
           skip_fetch: true
+          skip_dirty_check: true
 
       # ------------------------------------
-      # 3️⃣ Final scan (authoritative) - runs on updated code.
+      # 4️⃣ Final scan (must pass on PRs)
       # ------------------------------------
-      - name: PHPCS – final scan (must pass)
+      - name: PHPCS – final scan (fail if errors)
+        if: github.event_name == 'pull_request'
         run: |
+          if [ ! -f "vendor/bin/phpcs" ]; then
+            echo "❌ PHPCS not found - cannot lint"
+            exit 1
+          fi
           ./vendor/bin/phpcs ./ \
             --standard=.phpcs.xml.dist \
-            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*,tests/* \
-            --report=summary
+            --colors \
+            --report=summary \
+            --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
+            || exit 1

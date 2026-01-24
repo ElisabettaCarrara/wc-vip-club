@@ -1,0 +1,107 @@
+# Copyright (C) 2026 Your Name
+# This file is distributed under the same license as the WC VIP Club plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: WC VIP Club 1.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wc-vip-club\n"
+"POT-Creation-Date: 2026-01-24T14:48:52+00:00\n"
+"PO-Revision-Date: 2026-01-24 16:00+0100\n"
+"Last-Translator: Elisabetta Carrara\n"
+"Language-Team: Italian\n"
+"Language: it_IT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 3.x\n"
+"X-Domain: wc-vip-club\n"
+
+#. Plugin Name of the plugin
+#: wc-vip-club.php
+msgid "WC VIP Club"
+msgstr "WC VIP Club"
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: wc-vip-club.php
+msgid "https://example.com"
+msgstr "https://example.com"
+
+#. Description of the plugin
+#: wc-vip-club.php
+msgid "Automatically assign customers to a VIP role when a lifetime spending threshold is reached."
+msgstr "Assegna automaticamente i clienti a un ruolo VIP quando viene raggiunta una soglia di spesa complessiva."
+
+#. Author of the plugin
+#: wc-vip-club.php
+msgid "Your Name"
+msgstr "Il tuo nome"
+
+#: includes/class-wc-vip-club-admin.php:84
+#: includes/class-wc-vip-club-myaccount.php:62
+msgid "VIP Club"
+msgstr "Club VIP"
+
+#: includes/class-wc-vip-club-admin.php:105
+msgid "VIP Club Settings"
+msgstr "Impostazioni Club VIP"
+
+#: includes/class-wc-vip-club-admin.php:110
+msgid "VIP role name"
+msgstr "Nome del ruolo VIP"
+
+#: includes/class-wc-vip-club-admin.php:111
+msgid "Display name for the VIP user role."
+msgstr "Nome visualizzato per il ruolo utente VIP."
+
+#: includes/class-wc-vip-club-admin.php:114
+#: includes/class-wc-vip-club-admin.php:163
+msgid "VIP Customer"
+msgstr "Cliente VIP"
+
+#: includes/class-wc-vip-club-admin.php:118
+msgid "VIP role slug"
+msgstr "Slug del ruolo VIP"
+
+#: includes/class-wc-vip-club-admin.php:119
+msgid "Internal role identifier (lowercase, no spaces)."
+msgstr "Identificatore interno del ruolo (minuscolo, senza spazi)."
+
+#: includes/class-wc-vip-club-admin.php:126
+msgid "Spending threshold"
+msgstr "Soglia di spesa"
+
+#: includes/class-wc-vip-club-admin.php:127
+msgid "Lifetime spending required to become VIP."
+msgstr "Spesa complessiva richiesta per diventare VIP."
+
+#: includes/class-wc-vip-club-myaccount.php:78
+msgid "You must be logged in to view this page."
+msgstr "Devi essere autenticato per visualizzare questa pagina."
+
+#: includes/class-wc-vip-club-myaccount.php:100
+msgid "Congratulations! You have reached VIP status."
+msgstr "Congratulazioni! Hai raggiunto lo stato VIP."
+
+#: includes/class-wc-vip-club-myaccount.php:116
+msgid "Progress:"
+msgstr "Avanzamento:"
+
+#. translators: %s = amount remaining to reach VIP
+#: includes/class-wc-vip-club-myaccount.php:131
+#, php-format
+msgid "You need %s more to reach VIP status. Keep shopping!"
+msgstr "Ti mancano ancora %s per raggiungere lo stato VIP. Continua lo shopping!"
+
+#: wc-vip-club.php:68
+#: wc-vip-club.php:104
+msgid "WC VIP Club requires WooCommerce to be installed and active."
+msgstr "WC VIP Club richiede che WooCommerce sia installato e attivo."
+
+#: wc-vip-club.php:72
+msgid "Plugin activation failed"
+msgstr "Attivazione del plugin non riuscita"
+
+#: wc-vip-club.php:130
+msgid "WC VIP Club main class file is missing."
+msgstr "Il file principale della classe WC VIP Club è mancante."

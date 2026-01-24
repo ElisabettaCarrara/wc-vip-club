@@ -16,25 +16,29 @@ final class WC_VIP_Club {
 	private ?WC_VIP_Club_Threshold $threshold = null;
 	private ?WC_VIP_Club_MyAccount $myaccount = null;
 
+	/**
+	 * Singleton access.
+	 */
 	public static function get_instance(): WC_VIP_Club {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
-
 		return self::$instance;
 	}
 
+	/**
+	 * Constructor.
+	 */
 	private function __construct() {
-		$this->load_textdomain();
 		$this->load_dependencies();
 		$this->init_components();
 		$this->register_hooks();
 	}
 
 	/**
-	 * Load plugin textdomain for translations
+	 * Load plugin textdomain for translations (deferred to init)
 	 */
-	private function load_textdomain(): void {
+	public function load_textdomain(): void {
 		load_plugin_textdomain(
 			'wc-vip-club',
 			false,
@@ -43,38 +47,41 @@ final class WC_VIP_Club {
 	}
 
 	/**
-	 * Load all required classes
+	 * Load all required class files
 	 */
 	private function load_dependencies(): void {
-    require_once __DIR__ . '/class-wc-vip-club-admin.php';
-    require_once __DIR__ . '/class-wc-vip-club-roles.php';
-    require_once __DIR__ . '/class-wc-vip-club-threshold.php';
-    require_once __DIR__ . '/class-wc-vip-club-myaccount.php';
-}
+		require_once __DIR__ . '/class-wc-vip-club-admin.php';
+		require_once __DIR__ . '/class-wc-vip-club-roles.php';
+		require_once __DIR__ . '/class-wc-vip-club-threshold.php';
+		require_once __DIR__ . '/class-wc-vip-club-myaccount.php';
+	}
 
 	/**
- * Instantiate classes
- */
-private function init_components(): void {
-    if ( is_admin() ) {
-        $this->admin = new WC_VIP_Club_Admin();
-    }
+	 * Instantiate classes
+	 */
+	private function init_components(): void {
+		if ( is_admin() ) {
+			$this->admin = new WC_VIP_Club_Admin();
+		}
 
-    $this->roles     = new WC_VIP_Club_Roles();
-    $this->threshold = new WC_VIP_Club_Threshold();
-    $this->myaccount = new WC_VIP_Club_MyAccount();
-}
+		$this->roles     = new WC_VIP_Club_Roles();
+		$this->threshold = new WC_VIP_Club_Threshold();
+		$this->myaccount = new WC_VIP_Club_MyAccount();
+	}
 
 	/**
 	 * Register plugin hooks
 	 */
 	private function register_hooks(): void {
-		// Enqueue frontend CSS for My Account tab only
+		// Load translations safely
+		add_action( 'init', array( $this, 'load_textdomain' ) );
+
+		// Enqueue frontend assets for My Account page
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
 	}
 
 	/**
-	 * Enqueue frontend CSS
+	 * Enqueue frontend CSS for My Account tab only
 	 */
 	public function enqueue_frontend_assets(): void {
 		if ( is_account_page() ) {

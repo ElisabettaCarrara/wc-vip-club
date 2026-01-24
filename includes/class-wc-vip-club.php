@@ -42,12 +42,14 @@ final class WC_VIP_Club {
 		require_once WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club-admin.php';
 		require_once WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club-roles.php';
 		require_once WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club-threshold.php';
+		require_once WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club-myaccount.php';
 	}
 
 	private function init_components(): void {
 		$this->admin     = new WC_VIP_Club_Admin();
 		$this->roles     = new WC_VIP_Club_Roles();
 		$this->threshold = new WC_VIP_Club_Threshold();
+		$this->myaccount = new WC_VIP_Club_MyAccount();
 	}
 
 	private function register_hooks(): void {

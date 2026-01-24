@@ -8,8 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint-and-fix:
+  lint-fix-lint:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
       pull-requests: write
@@ -39,14 +40,37 @@ jobs:
       - name: Install PHPCS + WPCS + WooCommerce sniffs
         run: composer install --no-interaction --prefer-dist
 
-      - name: Run PHPCS (lint)
-        run: vendor/bin/phpcs ./ --standard=.phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*
+      # ------------------------------------
+      # 1️⃣ Initial scan (informational)
+      # ------------------------------------
+      - name: PHPCS – initial scan
+        run: |
+          vendor/bin/phpcs ./ \
+            --standard=.phpcs.xml.dist \
+            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/* \
+            || true
 
-      - name: Run PHPCBF (autofix)
-        run: vendor/bin/phpcbf ./ --standard=.phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/* || true
+      # ------------------------------------
+      # 2️⃣ Autofix
+      # ------------------------------------
+      - name: PHPCBF – autofix
+        run: |
+          vendor/bin/phpcbf ./ \
+            --standard=.phpcs.xml.dist \
+            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/* \
+            || true
 
       - name: Commit auto-fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: PHPCBF auto-fixes"
           branch: ${{ github.head_ref }}
+
+      # ------------------------------------
+      # 3️⃣ Final scan (authoritative)
+      # ------------------------------------
+      - name: PHPCS – final scan (must pass)
+        run: |
+          vendor/bin/phpcs ./ \
+            --standard=.phpcs.xml.dist \
+            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*

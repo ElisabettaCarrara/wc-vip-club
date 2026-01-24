@@ -63,19 +63,14 @@ final class WC_VIP_Club_MyAccount {
         $lifetime_spent = wc_get_customer_total_spent( $user_id );
         $progress = min( 100, ( $lifetime_spent / $threshold ) * 100 );
 
-        $star_class = $progress >= 100 || in_array( $vip_role, $user->roles, true )
-            ? 'wc-vip-club-star-full'
-            : ( $progress >= 50 ? 'wc-vip-club-star-half' : 'wc-vip-club-star-empty' );
-
         echo '<div class="wc-vip-wrapper">';
 
-        // Header: Star + Role Name
+        // Header: Role Name only
         echo '<h2 class="wc-vip-status-header">';
-        echo '<span class="wc-vip-club-star ' . esc_attr( $star_class ) . '"></span>';
         echo esc_html( $role_name );
         echo '</h2>';
 
-        // VIP achieved
+        // VIP achieved message
         if ( in_array( $vip_role, $user->roles, true ) && $progress >= 100 ) {
             echo '<div class="wc-vip-success">';
             echo esc_html__( 'Congratulations! You have reached VIP status.', 'wc-vip-club' );
@@ -100,6 +95,7 @@ final class WC_VIP_Club_MyAccount {
         echo ' → ' . esc_html( round( $progress ) ) . '%';
         echo '</p>';
 
+        // Motivational message if threshold not reached
         $remaining = max( 0, $threshold - $lifetime_spent );
         if ( $remaining > 0 ) {
             echo '<p class="wc-vip-motivation">';
@@ -109,8 +105,8 @@ final class WC_VIP_Club_MyAccount {
             );
             echo '</p>';
         }
-        echo '</div>'; // end .wc-vip-progress-text
 
+        echo '</div>'; // end .wc-vip-progress-text
         echo '</div>'; // end .wc-vip-wrapper
     }
 }

@@ -1,6 +1,6 @@
 /**
  * WC VIP Club Frontend Styles
- * Fully aligned with new plugin structure
+ * Updated for text-based progress
  */
 
 /* =========================
@@ -42,49 +42,23 @@
 	border-radius: 6px;
 	margin-bottom: 1.5rem;
 	color: var(--wc-primary, #7f54b3);
+	font-weight: 500;
 }
 
 /* =========================
- * Progress Bar Container
+ * Text-Based Progress Indicator
  * ========================= */
-.wc-vip-progress {
-	margin-top: 2rem;
+.wc-vip-progress-text {
+	margin-top: 1.5rem;
+	font-size: 1rem;
 }
 
-/* Track */
-.wc-vip-progress-bar {
-	height: 14px;
-	background: #f0f0f0;
-	border-radius: 10px;
-	overflow: hidden;
-	position: relative;
-	border: 1px solid rgba(0, 0, 0, 0.05);
+.wc-vip-progress-text p {
+	margin: 0.5rem 0;
 }
 
-/* Fill */
-.wc-vip-progress-bar span {
-	display: block;
-	height: 100%;
-	background: linear-gradient(
-		90deg,
-		var(--wc-primary, #7f54b3),
-		var(--wc-secondary, #2c2d33)
-	);
-	transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Spent vs Goal Labels */
-.wc-vip-meta {
-	display: flex;
-	justify-content: space-between;
-	margin-top: 0.75rem;
-	font-size: 0.9rem;
-	font-weight: 500;
-	color: var(--wc-secondary-text, #666);
-}
-
-.wc-vip-meta span strong {
-	color: var(--wc-primary, #000);
+.wc-vip-progress-text strong {
+	font-weight: 600;
 }
 
 /* Motivational / Encouragement Message */
@@ -156,10 +130,8 @@
 		padding: 1.25rem;
 	}
 
-	.wc-vip-meta {
-		flex-direction: column;
-		gap: 4px;
-		text-align: center;
+	.wc-vip-progress-text {
+		font-size: 0.95rem;
 	}
 
 	.wc-vip-status-header {

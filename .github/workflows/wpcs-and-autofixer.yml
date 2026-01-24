@@ -1,4 +1,4 @@
-name: WPCS Lint
+name: WPCS Lint + Autofix
 
 on:
   push:
@@ -8,12 +8,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  phpcs:
+  lint-and-fix:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up PHP 8.2
         uses: shivammathur/setup-php@v2
@@ -36,3 +41,12 @@ jobs:
 
       - name: Run PHPCS (lint)
         run: vendor/bin/phpcs ./ --standard=.phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*
+
+      - name: Run PHPCBF (autofix)
+        run: vendor/bin/phpcbf ./ --standard=.phpcs.xml.dist --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/* || true
+
+      - name: Commit auto-fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: PHPCBF auto-fixes"
+          branch: ${{ github.head_ref }}

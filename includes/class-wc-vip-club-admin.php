@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * WC VIP Club Admin class.
  *
- * Registers the VIP Club settings tab, renders settings, 
+ * Registers the VIP Club settings tab, renders settings,
  * and handles sanitization of admin options.
  */
 final class WC_VIP_Club_Admin {
@@ -123,11 +123,11 @@ final class WC_VIP_Club_Admin {
 				'desc_tip' => true,
 			),
 			array(
-				'title'    => esc_html__( 'Spending threshold', 'wc-vip-club' ),
-				'desc'     => esc_html__( 'Lifetime spending required to become VIP.', 'wc-vip-club' ),
-				'id'       => 'wc_vip_club_threshold',
-				'type'     => 'number',
-				'default'  => 1000,
+				'title'             => esc_html__( 'Spending threshold', 'wc-vip-club' ),
+				'desc'              => esc_html__( 'Lifetime spending required to become VIP.', 'wc-vip-club' ),
+				'id'                => 'wc_vip_club_threshold',
+				'type'              => 'number',
+				'default'           => 1000,
 				'custom_attributes' => array(
 					'min'  => '0',
 					'step' => '1',

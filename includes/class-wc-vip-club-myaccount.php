@@ -79,12 +79,12 @@ final class WC_VIP_Club_MyAccount {
 			return;
 		}
 
-		$user       = get_user_by( 'id', $user_id );
-		$vip_role   = get_option( WC_VIP_Club::OPTION_ROLE_SLUG, 'vip_customer' );
-		$role_name  = get_option( WC_VIP_Club::OPTION_ROLE_NAME, 'VIP Customer' );
-		$threshold  = (int) get_option( WC_VIP_Club::OPTION_THRESHOLD, 1000 );
-		$lifetime   = wc_get_customer_total_spent( $user_id );
-		$progress   = min( 100, ( $lifetime / $threshold ) * 100 );
+		$user      = get_user_by( 'id', $user_id );
+		$vip_role  = get_option( WC_VIP_Club::OPTION_ROLE_SLUG, 'vip_customer' );
+		$role_name = get_option( WC_VIP_Club::OPTION_ROLE_NAME, 'VIP Customer' );
+		$threshold = (int) get_option( WC_VIP_Club::OPTION_THRESHOLD, 1000 );
+		$lifetime  = wc_get_customer_total_spent( $user_id );
+		$progress  = min( 100, ( $lifetime / $threshold ) * 100 );
 
 		echo '<div class="wc-vip-wrapper">';
 

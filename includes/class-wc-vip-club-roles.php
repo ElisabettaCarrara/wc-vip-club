@@ -12,7 +12,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * WC VIP Club Roles class.
  *
- * Responsible for creating the VIP role, updating its name or slug, 
+ * Responsible for creating the VIP role, updating its name or slug,
  * and migrating users when slugs change.
  */
 final class WC_VIP_Club_Roles {
@@ -116,7 +116,7 @@ final class WC_VIP_Club_Roles {
 
 			if ( isset( $wp_roles->roles[ $slug ] ) ) {
 				$wp_roles->roles[ $slug ]['name'] = $new_name;
-				$wp_roles->role_names[ $slug ]   = $new_name;
+				$wp_roles->role_names[ $slug ]    = $new_name;
 			}
 		}
 	}

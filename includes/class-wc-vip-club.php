@@ -46,11 +46,11 @@ final class WC_VIP_Club {
 	 * Load all required classes
 	 */
 	private function load_dependencies(): void {
-		require_once WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club-admin.php';
-		require_once WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club-roles.php';
-		require_once WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club-threshold.php';
-		require_once WC_VIP_CLUB_PLUGIN_DIR . 'includes/class-wc-vip-club-myaccount.php';
-	}
+    require_once __DIR__ . '/class-wc-vip-club-admin.php';
+    require_once __DIR__ . '/class-wc-vip-club-roles.php';
+    require_once __DIR__ . '/class-wc-vip-club-threshold.php';
+    require_once __DIR__ . '/class-wc-vip-club-myaccount.php';
+}
 
 	/**
  * Instantiate classes

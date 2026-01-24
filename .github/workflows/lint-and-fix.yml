@@ -15,14 +15,13 @@ jobs:
       contents: write
       pull-requests: write
 
-    # Skip if triggered by our own auto-commit.
+    # Skip auto-commits.
     if: "!contains(github.event.head_commit.message, 'PHPCBF auto-fixes')"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # PR: checkout PR branch. Push: checkout main.
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -31,54 +30,43 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          coverage: none
-          tools: composer
 
-      # Cache Composer properly (cache dir, not vendor).
-      - name: Cache Composer packages
-        id: composer-cache
+      # Cache *only* Composer cache dir (not vendor).
+      - name: Cache Composer
         uses: actions/cache@v4
         with:
           path: ~/.composer/cache
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-composer-
 
-      # Cache vendor for faster runs.
-      - name: Cache vendor directory
-        id: vendor-cache
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: ${{ runner.os }}-vendor-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ runner.os }}-vendor-
-
-      - name: Install Composer dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true' || steps.vendor-cache.outputs.cache-hit != 'true'
+      - name: Install stable deps (no dev)
         run: |
-          composer config allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-          composer install --no-interaction --prefer-dist --no-progress --optimize-autoloader
+          composer install --no-interaction --no-dev --prefer-dist --no-progress
 
-      - name: Install WPCS + WooCommerce sniffs (dev deps)
+      # Install PHPCS globally (no vendor changes!).
+      - name: Install PHPCS globally
         run: |
-          composer require --dev \
+          composer global require \
             "squizlabs/php_codesniffer:^3.10" \
             "wp-coding-standards/wpcs:^3.1" \
             "woocommerce/woocommerce-sniffs" \
-            --no-interaction --no-update --no-progress || true
+            --no-interaction --prefer-dist
+
+      # Copy global phpcs to project (read-only).
+      - name: Setup PHPCS
+        run: |
+          mkdir -p ~/.local/bin
+          ln -sf ~/.composer/vendor/bin/phpcs ~/.local/bin/phpcs
+          ln -sf ~/.composer/vendor/bin/phpcbf ~/.local/bin/phpcbf
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       # ------------------------------------
-      # 1️⃣ Initial scan (informational)
+      # 1️⃣ Initial scan
       # ------------------------------------
       - name: PHPCS – initial scan
         run: |
-          if [ ! -f "vendor/bin/phpcs" ]; then
-            echo "❌ PHPCS not found, skipping lint"
-            exit 0
-          fi
-          ./vendor/bin/phpcs ./ \
+          phpcs ./ \
             --standard=.phpcs.xml.dist \
-            --colors \
-            --report=summary \
+            --colors --report=summary \
             --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
             || true
 
@@ -87,49 +75,39 @@ jobs:
       # ------------------------------------
       - name: PHPCBF – autofix
         run: |
-          if [ ! -f "vendor/bin/phpcbf" ]; then
-            echo "❌ PHPCBF not found, skipping fix"
-            exit 0
-          fi
-          ./vendor/bin/phpcbf ./ \
+          phpcbf ./ \
             --standard=.phpcs.xml.dist \
             --no-patch \
             --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
             || true
 
       # ------------------------------------
-      # 3️⃣ Commit fixes (only if changes)
+      # 3️⃣ Commit (only main pushes)
       # ------------------------------------
       - name: Commit auto-fixes
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: github.ref == 'refs/heads/main'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: PHPCBF auto-fixes [skip ci]"
-          branch: ${{ github.head_ref || github.ref_name }}
-          file_pattern: |
-            **/*.php
-            !**/vendor/**
-            !**/*.lock
-            !**/composer.*
-            !**/*.md
-            !.github/**
-          push_options: '--force-with-lease'
-          skip_fetch: true
-          skip_dirty_check: true
+          file_pattern: "**/*.php"
+          exclude: |
+            vendor/**
+            node_modules/**
+            .github/**
+            *.lock
+            composer.*
+            *.md
+          push_options: "--force"
+          skip_fetch: false
 
       # ------------------------------------
-      # 4️⃣ Final scan (must pass on PRs)
+      # 4️⃣ Final lint (PRs only)
       # ------------------------------------
-      - name: PHPCS – final scan (fail if errors)
+      - name: PHPCS – final scan
         if: github.event_name == 'pull_request'
         run: |
-          if [ ! -f "vendor/bin/phpcs" ]; then
-            echo "❌ PHPCS not found - cannot lint"
-            exit 1
-          fi
-          ./vendor/bin/phpcs ./ \
+          phpcs ./ \
             --standard=.phpcs.xml.dist \
-            --colors \
-            --report=summary \
+            --colors --report=summary \
             --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
             || exit 1

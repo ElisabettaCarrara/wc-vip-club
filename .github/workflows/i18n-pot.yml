@@ -1,0 +1,35 @@
+name: Generate POT file
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  make-pot:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: wp-cli
+
+      - name: Generate POT file
+        run: |
+          mkdir -p languages
+          wp i18n make-pot . languages/wc-vip-club.pot \
+            --domain=wc-vip-club \
+            --exclude=node_modules,vendor,build,.github,assets
+
+      - name: Commit POT if changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(i18n): update wc-vip-club.pot"

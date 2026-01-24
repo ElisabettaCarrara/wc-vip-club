@@ -8,6 +8,10 @@
 defined( 'ABSPATH' ) || exit;
 
 final class WC_VIP_Club {
+	
+	public const OPTION_ROLE_NAME = 'wc_vip_club_role_name';
+    public const OPTION_ROLE_SLUG = 'wc_vip_club_role_slug';
+    public const OPTION_THRESHOLD = 'wc_vip_club_threshold';
 
 	private static ?WC_VIP_Club $instance = null;
 

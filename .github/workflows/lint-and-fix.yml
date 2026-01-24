@@ -59,9 +59,9 @@ jobs:
           phpcs --version
           phpcs ./ \
             --standard=.phpcs.xml.dist \
-            --colors --report=summary \
-            --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
-            || true
+            --colors \
+            --report=summary \
+            --ignore=vendor,node_modules,build,assets,.github,tests,*.log || true
 
       # ------------------------------------
       # 2️⃣ Autofix
@@ -71,8 +71,7 @@ jobs:
           phpcbf ./ \
             --standard=.phpcs.xml.dist \
             --no-patch \
-            --ignore=vendor,node_modules,build,assets,.github,tests,*.log \
-            || true
+            --ignore=vendor,node_modules,build,assets,.github,tests,*.log || true
 
       # ------------------------------------
       # 3️⃣ Commit (main only)
@@ -90,6 +89,7 @@ jobs:
       # ------------------------------------
       - name: "PHPCS - final scan (fail if errors remain)"
         run: |
+          # Run PHPCS but do not fail workflow yet
           phpcs ./ \
             --standard=.phpcs.xml.dist \
             --colors \
@@ -101,9 +101,12 @@ jobs:
           echo "::notice title=PHPCS Report::Report saved to phpcs-report-full.txt"
           cat phpcs-report-full.txt
 
+          # Count remaining errors
           ERROR_COUNT=$(grep -c "^.*ERROR.*$" phpcs-report-full.txt || echo "0")
-          
+
           if [ "$ERROR_COUNT" -gt 0 ]; then
-            echo "::error title=PHPCS Errors::❌ $ERROR_COUNT PHPCS errors remain after PHPCBF!" || exit 
+            echo "::error title=PHPCS Errors::❌ $ERROR_COUNT PHPCS errors remain after PHPCBF!"
+            exit 1
+          fi
 
           echo "✅ All PHPCS errors fixed!"

@@ -85,11 +85,12 @@ jobs:
           file_pattern: "**/*.php"
           push_options: "--force"
 
+   # ... (keep everything above the same until final scan) ...
+
       # ------------------------------------
-      # 4️⃣ Final lint (PRs)
+      # 4️⃣ Final lint (ALWAYS runs)
       # ------------------------------------
-      - name: PHPCS – final scan
-        if: github.event_name == 'pull_request'
+      - name: PHPCS – final scan (fail if errors remain)
         run: |
           phpcs ./ \
             --standard=.phpcs.xml.dist \

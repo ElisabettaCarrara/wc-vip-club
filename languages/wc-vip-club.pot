@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-01-24T14:54:55+00:00\n"
+"POT-Creation-Date: 2026-01-24T15:36:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wc-vip-club\n"
@@ -36,7 +36,7 @@ msgid "Your Name"
 msgstr ""
 
 #: includes/class-wc-vip-club-admin.php:84
-#: includes/class-wc-vip-club-myaccount.php:62
+#: includes/class-wc-vip-club-myaccount.php:64
 msgid "VIP Club"
 msgstr ""
 
@@ -73,20 +73,20 @@ msgstr ""
 msgid "Lifetime spending required to become VIP."
 msgstr ""
 
-#: includes/class-wc-vip-club-myaccount.php:78
+#: includes/class-wc-vip-club-myaccount.php:80
 msgid "You must be logged in to view this page."
 msgstr ""
 
-#: includes/class-wc-vip-club-myaccount.php:100
+#: includes/class-wc-vip-club-myaccount.php:107
 msgid "Congratulations! You have reached VIP status."
 msgstr ""
 
-#: includes/class-wc-vip-club-myaccount.php:116
+#: includes/class-wc-vip-club-myaccount.php:123
 msgid "Progress:"
 msgstr ""
 
 #. translators: %s = amount remaining to reach VIP
-#: includes/class-wc-vip-club-myaccount.php:131
+#: includes/class-wc-vip-club-myaccount.php:138
 #, php-format
 msgid "You need %s more to reach VIP status. Keep shopping!"
 msgstr ""

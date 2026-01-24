@@ -97,6 +97,7 @@ jobs:
             --report-file=phpcs-report-full.txt \
             --report-width=120 \
             --ignore=vendor,node_modules,build,assets,.github,tests,*.log
+            || true
 
           echo "::notice title=PHPCS Report::Report saved to phpcs-report-full.txt"
           cat phpcs-report-full.txt

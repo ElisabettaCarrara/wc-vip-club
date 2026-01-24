@@ -56,6 +56,7 @@ The "magic" happens in the background. When a customer's order is marked as **Pr
 ### 4. Screenshots
 
 ![Screenshot-1](images/screenshot-1.png)
+
 ![Screenshot-2](images/screenshot-2.png)
 
 ---

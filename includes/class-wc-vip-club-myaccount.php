@@ -14,11 +14,21 @@ final class WC_VIP_Club_MyAccount {
     }
 
     private function register_hooks(): void {
+        // Register VIP endpoint
+        add_action( 'init', array( $this, 'register_endpoint' ) );
+
         // Add tab to My Account menu
         add_filter( 'woocommerce_account_menu_items', array( $this, 'add_vip_tab' ), 10, 1 );
 
         // Add endpoint content
         add_action( 'woocommerce_account_vip_status_endpoint', array( $this, 'display_vip_tab_content' ) );
+    }
+
+    /**
+     * Register the VIP status endpoint
+     */
+    public function register_endpoint(): void {
+        add_rewrite_endpoint( 'vip_status', EP_PAGES );
     }
 
     /**
@@ -28,8 +38,11 @@ final class WC_VIP_Club_MyAccount {
         $user = wp_get_current_user();
         $vip_role = get_option( WC_VIP_Club::OPTION_ROLE_SLUG, 'vip_customer' );
 
-        if ( in_array( $vip_role, $user->roles, true ) || ! empty( $user->ID ) ) {
-            $items['vip_status'] = esc_html__( 'VIP Status', 'wc-vip-club' );
+        // Only show for logged-in users
+        if ( ! empty( $user->ID ) && in_array( $vip_role, $user->roles, true ) ) {
+            // Insert VIP tab at the top
+            $new_items = array( 'vip_status' => esc_html__( 'VIP Status', 'wc-vip-club' ) );
+            $items = $new_items + $items;
         }
 
         return $items;
@@ -40,7 +53,10 @@ final class WC_VIP_Club_MyAccount {
      */
     public function display_vip_tab_content(): void {
         $user_id = get_current_user_id();
-        if ( ! $user_id ) return;
+        if ( ! $user_id ) {
+            echo '<p>' . esc_html__( 'You must be logged in to view this page.', 'wc-vip-club' ) . '</p>';
+            return;
+        }
 
         $user = get_user_by( 'id', $user_id );
         $vip_role = get_option( WC_VIP_Club::OPTION_ROLE_SLUG, 'vip_customer' );
@@ -91,14 +107,14 @@ final class WC_VIP_Club_MyAccount {
             echo '</div>';
 
             // Motivational message
-            echo '<p class="wc-vip-motivation">';
             if ( $remaining > 0 ) {
+                echo '<p class="wc-vip-motivation">';
                 echo sprintf(
                     esc_html__( 'You need %s more to reach VIP status. Keep shopping!', 'wc-vip-club' ),
                     wc_price( $remaining )
                 );
+                echo '</p>';
             }
-            echo '</p>';
 
             echo '</div>'; // end .wc-vip-progress
         }

@@ -137,7 +137,7 @@ function wc_vip_club_init(): void {
 		return;
 	}
 
-	require_once $class_file = __DIR__ . '/includes/class-wc-vip-club.php';
+	require_once $class_file;
 
 	if ( class_exists( 'WC_VIP_Club' ) ) {
 		WC_VIP_Club::get_instance();

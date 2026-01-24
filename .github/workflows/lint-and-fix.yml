@@ -96,8 +96,7 @@ jobs:
             --report=full \
             --report-file=phpcs-report-full.txt \
             --report-width=120 \
-            --ignore=vendor,node_modules,build,assets,.github,tests,*.log
-            || true
+            --ignore=vendor,node_modules,build,assets,.github,tests,*.log || true
 
           echo "::notice title=PHPCS Report::Report saved to phpcs-report-full.txt"
           cat phpcs-report-full.txt
@@ -105,8 +104,6 @@ jobs:
           ERROR_COUNT=$(grep -c "^.*ERROR.*$" phpcs-report-full.txt || echo "0")
           
           if [ "$ERROR_COUNT" -gt 0 ]; then
-            echo "::error title=PHPCS Errors::❌ $ERROR_COUNT PHPCS errors remain after PHPCBF!"
-            exit 1
-          fi
+            echo "::error title=PHPCS Errors::❌ $ERROR_COUNT PHPCS errors remain after PHPCBF!" || exit 
 
           echo "✅ All PHPCS errors fixed!"

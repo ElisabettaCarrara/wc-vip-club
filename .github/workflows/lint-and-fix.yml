@@ -15,11 +15,17 @@ jobs:
       contents: write
       pull-requests: write
 
+    # Skip if triggered by our own auto-commit.
+    if: "!contains(github.event.head_commit.message, 'PHPCBF auto-fixes')"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # PR: checkout PR branch. Push: checkout main.
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up PHP 8.2
         uses: shivammathur/setup-php@v2
@@ -27,27 +33,28 @@ jobs:
           php-version: '8.2'
           tools: composer
 
+      # Cache Composer but exclude vendor from commits.
       - name: Cache Composer
         uses: actions/cache@v3
         with:
           path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}
+          key: composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: composer-
 
       - name: Allow PHPCS Composer plugin
         run: composer config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
 
       - name: Install PHPCS + WPCS + WooCommerce sniffs
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --no-dev
 
       # ------------------------------------
       # 1️⃣ Initial scan (informational)
       # ------------------------------------
       - name: PHPCS – initial scan
         run: |
-          vendor/bin/phpcs ./ \
+          ./vendor/bin/phpcs ./ \
             --standard=.phpcs.xml.dist \
-            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/* \
+            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*,tests/* \
             || true
 
       # ------------------------------------
@@ -55,22 +62,31 @@ jobs:
       # ------------------------------------
       - name: PHPCBF – autofix
         run: |
-          vendor/bin/phpcbf ./ \
+          ./vendor/bin/phpcbf ./ \
             --standard=.phpcs.xml.dist \
-            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/* \
+            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*,tests/* \
             || true
 
       - name: Commit auto-fixes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: PHPCBF auto-fixes"
-          branch: ${{ github.head_ref }}
+          commit_message: "chore: PHPCBF auto-fixes [skip ci]"
+          # PR: commit to PR branch. Push: commit to main.
+          branch: ${{ github.head_ref || github.ref_name }}
+          file_pattern: |
+            **/*.php
+            !**/vendor/**
+            !**/*.lock
+            !**/composer.*
+          push_options: '--force-with-lease'
+          skip_fetch: true
 
       # ------------------------------------
-      # 3️⃣ Final scan (authoritative)
+      # 3️⃣ Final scan (authoritative) - runs on updated code.
       # ------------------------------------
       - name: PHPCS – final scan (must pass)
         run: |
-          vendor/bin/phpcs ./ \
+          ./vendor/bin/phpcs ./ \
             --standard=.phpcs.xml.dist \
-            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*
+            --ignore=vendor/*,node_modules/*,build/*,assets/*,.github/*,tests/* \
+            --report=summary
